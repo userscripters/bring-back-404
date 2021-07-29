@@ -1,11 +1,16 @@
 // ==UserScript==
-// @author           Jane Doe <jane@doe.com>
-// @contributors     John Doe <john@doe.com>
-// @description      template repository for userscripters' projects
-// @homepage         https://github.com/userscripters/template#readme
-// @name             template
-// @namespace        userscripters
-// @source           git+https://github.com/userscripters/template.git
-// @supportURL       https://github.com/userscripters/template/issues
-// @version          1.0.0
+// @author          Oleg Valter <oleg.a.valter@gmail.com>
+// @description     Brings back 404 pages to Stack Exchange network
+// @grant           none
+// @homepage        https://github.com/userscripters/bring-back-404#readme
+// @match           https://*.askubuntu.com/*
+// @match           https://*.stackapps.com/*
+// @match           https://*.stackexchange.com/*
+// @match           https://*.stackoverflow.com/*
+// @match           https://*.superuser.com/*
+// @name            bring-back-404
+// @namespace       userscripters
+// @source          git+https://github.com/userscripters/bring-back-404.git
+// @supportURL      https://github.com/userscripters/bring-back-404/issues
+// @version         0.0.1
 // ==/UserScript==
