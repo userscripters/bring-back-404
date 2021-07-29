@@ -34,6 +34,14 @@
             site: "superuser",
             imageURL: "https://i.stack.imgur.com/hMfYx.png",
         },
+        {
+            site: "english.stackexchange",
+            imageURL: "https://i.stack.imgur.com/cQLRt.png",
+        },
+        {
+            site: "codereview.stackexchange",
+            imageURL: "https://i.stack.imgur.com/R4Tgd.png",
+        },
     ];
     var hostname = l.hostname;
     var currentSite = hostname.split(".").slice(0, -1).join(".");
