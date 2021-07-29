@@ -13,7 +13,7 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
-// @version         0.0.5
+// @version         0.1.0
 // ==/UserScript==
 
 "use strict";
