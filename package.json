@@ -1,6 +1,6 @@
 {
   "name": "@userscripters/bring-back-404",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Brings back 404 pages to Stack Exchange network",
   "scripts": {
     "test": "mocha",
