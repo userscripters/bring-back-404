@@ -42,6 +42,14 @@
             site: "codereview.stackexchange",
             imageURL: "https://i.stack.imgur.com/R4Tgd.png",
         },
+        {
+            site: "unix.stackexchange",
+            imageURL: "https://i.stack.imgur.com/XQRh5.png",
+        },
+        {
+            site: "scifi.stackexchange",
+            imageURL: "https://i.stack.imgur.com/UR35t.png",
+        },
     ];
     const { hostname } = l;
     const currentSite = hostname.split(".").slice(0, -1).join(".");
