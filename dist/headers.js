@@ -4,6 +4,7 @@
 // @grant           none
 // @homepage        https://github.com/userscripters/bring-back-404#readme
 // @match           https://*.askubuntu.com/*
+// @match           https://*.serverfault.com/*
 // @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
 // @match           https://*.stackoverflow.com/*

@@ -37,6 +37,18 @@
             site: "scifi.stackexchange",
             imageURL: "https://i.stack.imgur.com/UR35t.png",
         },
+        {
+            site: "math.stackexchange",
+            imageURL: "https://i.stack.imgur.com/bHpU1.png",
+        },
+        {
+            site: "serverfault",
+            imageURL: "https://i.stack.imgur.com/W7VMk.png",
+        },
+        {
+            site: "apple.stackexchange",
+            imageURL: "https://i.stack.imgur.com/fCIaP.png",
+        },
     ];
 
     const { hostname } = l;

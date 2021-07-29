@@ -4,6 +4,7 @@
 // @grant           none
 // @homepage        https://github.com/userscripters/bring-back-404#readme
 // @match           https://*.askubuntu.com/*
+// @match           https://*.serverfault.com/*
 // @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
 // @match           https://*.stackoverflow.com/*
@@ -49,6 +50,18 @@
         {
             site: "scifi.stackexchange",
             imageURL: "https://i.stack.imgur.com/UR35t.png",
+        },
+        {
+            site: "math.stackexchange",
+            imageURL: "https://i.stack.imgur.com/bHpU1.png",
+        },
+        {
+            site: "serverfault",
+            imageURL: "https://i.stack.imgur.com/W7VMk.png",
+        },
+        {
+            site: "apple.stackexchange",
+            imageURL: "https://i.stack.imgur.com/fCIaP.png",
         },
     ];
     const { hostname } = l;
