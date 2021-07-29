@@ -75,6 +75,22 @@
             site: "judaism.stackexchange",
             imageURL: "https://i.stack.imgur.com/048MA.png",
         },
+        {
+            site: "webmasters.stackexchange",
+            imageURL: "https://i.stack.imgur.com/Z8Y2o.png",
+        },
+        {
+            site: "crypto.stackexchange",
+            imageURL: "https://i.stack.imgur.com/2hyIe.png",
+        },
+        {
+            site: "cooking.stackexchange",
+            imageURL: "https://i.stack.imgur.com/kSX5n.png",
+        },
+        {
+            site: "diy.stackexchange",
+            imageURL: "https://i.stack.imgur.com/C4P5L.png",
+        },
     ];
     const { hostname } = l;
     const currentSite = hostname.split(".").slice(0, -1).join(".");
