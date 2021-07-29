@@ -63,6 +63,18 @@
             site: "apple.stackexchange",
             imageURL: "https://i.stack.imgur.com/fCIaP.png",
         },
+        {
+            site: "stats.stackexchange",
+            imageURL: "https://i.stack.imgur.com/BqaS0.png",
+        },
+        {
+            site: "gaming.stackexchange",
+            imageURL: "https://i.stack.imgur.com/C4jC1.png",
+        },
+        {
+            site: "judaism.stackexchange",
+            imageURL: "https://i.stack.imgur.com/048MA.png",
+        },
     ];
     var hostname = l.hostname;
     var currentSite = hostname.split(".").slice(0, -1).join(".");
