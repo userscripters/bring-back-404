@@ -18,6 +18,41 @@
 
 "use strict";
 (function (_w, d, l) {
+    var Store = (function () {
+        function Store() {
+        }
+        Store.clear = function () {
+            var _a = this, storage = _a.storage, prefix = _a.prefix;
+            storage.removeItem(prefix);
+        };
+        Store.open = function () {
+            var _a = this, storage = _a.storage, prefix = _a.prefix;
+            var val = storage.getItem(prefix);
+            return val ? JSON.parse(val) : {};
+        };
+        Store.load = function (key, def) {
+            var val = Store.open()[key];
+            return val !== void 0 ? val : def;
+        };
+        Store.save = function (key, val) {
+            var _a = this, storage = _a.storage, prefix = _a.prefix;
+            var old = Store.open();
+            old[key] = val;
+            storage.setItem(prefix, JSON.stringify(old));
+        };
+        Store.toggle = function (key) {
+            return Store.save(key, !Store.load(key));
+        };
+        Store.remove = function (key) {
+            var prefix = this.prefix;
+            var old = this.load(prefix, {});
+            delete old[key];
+            return Store.save(key, old);
+        };
+        Store.storage = localStorage;
+        Store.prefix = "bring-back-404";
+        return Store;
+    }());
     var pageNotFounds = [
         {
             site: "stackoverflow",
@@ -92,6 +127,16 @@
             imageURL: "https://i.stack.imgur.com/C4P5L.png",
         },
     ];
+    var overrides = Store.load("overrides", []);
+    overrides.forEach(function (option) {
+        var defaults = pageNotFounds.find(function (_a) {
+            var site = _a.site;
+            return site === option.site;
+        });
+        if (!defaults)
+            return pageNotFounds.push(option);
+        Object.assign(defaults, option);
+    });
     var hostname = l.hostname;
     var currentSite = hostname.split(".").slice(0, -1).join(".");
     var config = pageNotFounds.find(function (_a) {

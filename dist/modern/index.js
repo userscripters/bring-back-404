@@ -18,6 +18,38 @@
 
 "use strict";
 ((_w, d, l) => {
+    class Store {
+        static clear() {
+            const { storage, prefix } = this;
+            storage.removeItem(prefix);
+        }
+        static open() {
+            const { storage, prefix } = this;
+            const val = storage.getItem(prefix);
+            return val ? JSON.parse(val) : {};
+        }
+        static load(key, def) {
+            const val = Store.open()[key];
+            return val !== void 0 ? val : def;
+        }
+        static save(key, val) {
+            const { storage, prefix } = this;
+            const old = Store.open();
+            old[key] = val;
+            storage.setItem(prefix, JSON.stringify(old));
+        }
+        static toggle(key) {
+            return Store.save(key, !Store.load(key));
+        }
+        static remove(key) {
+            const { prefix } = this;
+            const old = this.load(prefix, {});
+            delete old[key];
+            return Store.save(key, old);
+        }
+    }
+    Store.storage = localStorage;
+    Store.prefix = "bring-back-404";
     const pageNotFounds = [
         {
             site: "stackoverflow",
@@ -92,6 +124,13 @@
             imageURL: "https://i.stack.imgur.com/C4P5L.png",
         },
     ];
+    const overrides = Store.load("overrides", []);
+    overrides.forEach((option) => {
+        const defaults = pageNotFounds.find(({ site }) => site === option.site);
+        if (!defaults)
+            return pageNotFounds.push(option);
+        Object.assign(defaults, option);
+    });
     const { hostname } = l;
     const currentSite = hostname.split(".").slice(0, -1).join(".");
     const config = pageNotFounds.find(({ site }) => site === currentSite);

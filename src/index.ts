@@ -1,4 +1,46 @@
 ((_w, d, l) => {
+    class Store {
+        static storage: Storage = localStorage;
+
+        static prefix = "bring-back-404";
+
+        static clear(): void {
+            const { storage, prefix } = this;
+            storage.removeItem(prefix);
+        }
+
+        private static open() {
+            const { storage, prefix } = this;
+            const val = storage.getItem(prefix);
+            return val ? JSON.parse(val) : {};
+        }
+
+        static load<T>(key: string, def?: T): T {
+            const val = Store.open()[key];
+            return val !== void 0 ? val : def;
+        }
+
+        static save<T>(key: string, val: T): void {
+            const { storage, prefix } = this;
+            const old = Store.open();
+            old[key] = val;
+            storage.setItem(prefix, JSON.stringify(old));
+        }
+
+        static toggle(key: string) {
+            return Store.save(key, !Store.load(key));
+        }
+
+        static remove(key: string): void {
+            const { prefix } = this;
+
+            const old = this.load<Record<string, any>>(prefix, {});
+            delete old[key];
+
+            return Store.save(key, old);
+        }
+    }
+
     type NotFoundOptions = {
         site: string;
         imageURL: string;
@@ -78,6 +120,13 @@
             imageURL: "https://i.stack.imgur.com/C4P5L.png",
         },
     ];
+
+    const overrides = Store.load<NotFoundOptions[]>("overrides", []);
+    overrides.forEach((option) => {
+        const defaults = pageNotFounds.find(({ site }) => site === option.site);
+        if (!defaults) return pageNotFounds.push(option);
+        Object.assign(defaults, option);
+    });
 
     const { hostname } = l;
 
