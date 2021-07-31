@@ -1,3 +1,8 @@
+type NotFoundOptions = {
+    site: string;
+    imageURL: string;
+};
+
 ((_w, d, l) => {
     class Store {
         static storage: Storage = localStorage;
@@ -40,11 +45,6 @@
             return Store.save(key, old);
         }
     }
-
-    type NotFoundOptions = {
-        site: string;
-        imageURL: string;
-    };
 
     const pageNotFounds: NotFoundOptions[] = [
         {
