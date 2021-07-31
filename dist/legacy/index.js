@@ -17,6 +17,27 @@
 // ==/UserScript==
 
 "use strict";
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 (function (_w, d, l) {
     var Store = (function () {
         function Store() {
@@ -53,6 +74,125 @@
         Store.prefix = "bring-back-404";
         return Store;
     }());
+    var makeConfigItem = function (id) {
+        var item = d.createElement("li");
+        item.classList.add("-item");
+        item.id = id;
+        var dataset = item.dataset;
+        dataset.action = "s-modal#toggle";
+        var link = d.createElement("a");
+        link.classList.add("-link");
+        var text = d.createElement("strong");
+        text.textContent = "404";
+        link.append(text);
+        item.append(link);
+        return item;
+    };
+    var makeStacksTextInput = function (id, title, _a) {
+        var _b;
+        var _c = _a === void 0 ? {} : _a, _d = _c.classes, classes = _d === void 0 ? [] : _d, _e = _c.placeholder, placeholder = _e === void 0 ? "" : _e, _f = _c.value, value = _f === void 0 ? "" : _f;
+        var wrap = d.createElement("div");
+        (_b = wrap.classList).add.apply(_b, __spreadArray(["d-flex", "gs4", "gsy", "fd-column"], __read(classes)));
+        var lblWrap = d.createElement("div");
+        lblWrap.classList.add("flex--item");
+        var label = d.createElement("label");
+        label.classList.add("d-block", "s-label");
+        label.htmlFor = id;
+        label.textContent = title;
+        var inputWrap = d.createElement("div");
+        inputWrap.classList.add("d-flex", "ps-relative");
+        var input = d.createElement("input");
+        input.classList.add("s-input");
+        input.id = id;
+        input.type = "text";
+        input.placeholder = placeholder;
+        input.value = value;
+        lblWrap.append(label);
+        inputWrap.append(input);
+        wrap.append(lblWrap, inputWrap);
+        return [wrap, input];
+    };
+    var makeConfigView = function (id, configs) {
+        var ariaLabelId = "modal-title";
+        var ariaDescrId = "modal-description";
+        var wrap = d.createElement("aside");
+        wrap.classList.add("s-modal");
+        wrap.id = id;
+        wrap.tabIndex = -1;
+        wrap.setAttribute("role", "dialog");
+        wrap.setAttribute("aria-labelledby", ariaLabelId);
+        wrap.setAttribute("aria-describeddy", ariaDescrId);
+        wrap.setAttribute("aria-hidden", "true");
+        var dataset = wrap.dataset;
+        dataset.sModalTarget = "modal";
+        dataset.controller = "s-modal";
+        var doc = d.createElement("div");
+        doc.classList.add("s-modal--dialog", "ps-relative");
+        doc.setAttribute("role", "document");
+        var title = d.createElement("h1");
+        title.classList.add("s-modal--header");
+        title.id = ariaLabelId;
+        title.textContent = "Custom 404 Options";
+        var form = d.createElement("form");
+        form.classList.add("s-modal--body", "d-flex", "flex__allcells6", "fw-wrap", "gs16");
+        form.addEventListener("change", function (_a) {
+            var target = _a.target;
+            var _b = target, id = _b.id, value = _b.value;
+            var option = configs.find(function (_a) {
+                var site = _a.site;
+                return site === id;
+            });
+            option
+                ? Object.assign(option, { imageURL: value })
+                : configs.push({ site: id, imageURL: value });
+            Store.save("overrides", configs);
+        });
+        var inputClasses = ["flex--item"];
+        var inputs = configs.map(function (_a) {
+            var imageURL = _a.imageURL, site = _a.site;
+            return makeStacksTextInput(site, site, {
+                value: imageURL,
+                classes: inputClasses,
+            })[0];
+        });
+        form.append.apply(form, __spreadArray([], __read(inputs)));
+        var close = d.createElement("button");
+        close.classList.add("s-modal--close", "s-btn", "s-btn__muted");
+        close.type = "button";
+        close.dataset.action = "s-modal#hide";
+        var svgNS = "http://www.w3.org/2000/svg";
+        var closeIcon = d.createElementNS(svgNS, "svg");
+        closeIcon.setAttribute("aria-hidden", "true");
+        closeIcon.setAttribute("viewBox", "0 0 14 14");
+        closeIcon.setAttribute("width", "14");
+        closeIcon.setAttribute("height", "14");
+        closeIcon.classList.add("svg-icon", "iconClearSm");
+        var iconPath = d.createElementNS(svgNS, "path");
+        iconPath.setAttribute("d", "M12 3.41 10.59 2 7 5.59 3.41 2 2 3.41 5.59 7 2 10.59 3.41 12 7 8.41 10.59 12 12 10.59 8.41 7 12 3.41z");
+        closeIcon.append(iconPath);
+        close.append(closeIcon);
+        doc.append(title, form, close);
+        wrap.append(doc);
+        return wrap;
+    };
+    var addConfigOptions = function (configs) {
+        var itemId = "bring-back-404";
+        var menu = d.querySelector("ol.user-logged-in");
+        if (!menu)
+            return console.debug("failed to find main menu");
+        var item = d.getElementById(itemId) || makeConfigItem(itemId);
+        if (item.isConnected)
+            return;
+        menu.append(item);
+        var uiId = "bring-back-404-config";
+        item.addEventListener("click", function () { return menu.append(makeConfigView(uiId, configs)); }, { once: true });
+        item.addEventListener("click", function (event) {
+            event.preventDefault();
+            var modal = d.getElementById(uiId);
+            if (modal)
+                Stacks === null || Stacks === void 0 ? void 0 : Stacks.showModal(modal);
+        });
+    };
     var pageNotFounds = [
         {
             site: "stackoverflow",
@@ -174,4 +314,5 @@
         flexWrap.classList.replace("ai-start", "ai-center");
     });
     d.body.append(image);
+    addConfigOptions(pageNotFounds);
 })(window, document, location);

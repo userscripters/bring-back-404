@@ -3,6 +3,12 @@ type NotFoundOptions = {
     imageURL: string;
 };
 
+type StacksTextInputOptions = {
+    classes?: string[];
+    placeholder?: string;
+    value?: string;
+};
+
 ((_w, d, l) => {
     class Store {
         static storage: Storage = localStorage;
@@ -45,6 +51,186 @@ type NotFoundOptions = {
             return Store.save(key, old);
         }
     }
+
+    /**
+     * @summary creates config item element
+     */
+    const makeConfigItem = (id: string) => {
+        const item = d.createElement("li");
+        item.classList.add("-item");
+        item.id = id;
+
+        const { dataset } = item;
+        dataset.action = "s-modal#toggle";
+
+        const link = d.createElement("a");
+        link.classList.add("-link");
+
+        const text = d.createElement("strong");
+        text.textContent = "404";
+
+        link.append(text);
+        item.append(link);
+        return item;
+    };
+
+    /**
+     * @see https://stackoverflow.design/product/components/inputs/
+     * @summary makes Stacks text input
+     */
+    const makeStacksTextInput = (
+        id: string,
+        title: string,
+        {
+            classes = [],
+            placeholder = "",
+            value = "",
+        }: StacksTextInputOptions = {}
+    ) => {
+        const wrap = d.createElement("div");
+        wrap.classList.add("d-flex", "gs4", "gsy", "fd-column", ...classes);
+
+        const lblWrap = d.createElement("div");
+        lblWrap.classList.add("flex--item");
+
+        const label = d.createElement("label");
+        label.classList.add("d-block", "s-label");
+        label.htmlFor = id;
+        label.textContent = title;
+
+        const inputWrap = d.createElement("div");
+        inputWrap.classList.add("d-flex", "ps-relative");
+
+        const input = d.createElement("input");
+        input.classList.add("s-input");
+        input.id = id;
+        input.type = "text";
+        input.placeholder = placeholder;
+        input.value = value;
+
+        lblWrap.append(label);
+        inputWrap.append(input);
+        wrap.append(lblWrap, inputWrap);
+
+        return [wrap, input];
+    };
+
+    /**
+     * @summary creates config modal element
+     */
+    const makeConfigView = (id: string, configs: NotFoundOptions[]) => {
+        const ariaLabelId = "modal-title";
+        const ariaDescrId = "modal-description";
+
+        const wrap = d.createElement("aside");
+        wrap.classList.add("s-modal");
+        wrap.id = id;
+        wrap.tabIndex = -1;
+        wrap.setAttribute("role", "dialog");
+        wrap.setAttribute("aria-labelledby", ariaLabelId);
+        wrap.setAttribute("aria-describeddy", ariaDescrId);
+        wrap.setAttribute("aria-hidden", "true");
+
+        const { dataset } = wrap;
+        dataset.sModalTarget = "modal";
+        dataset.controller = "s-modal";
+
+        const doc = d.createElement("div");
+        doc.classList.add("s-modal--dialog", "ps-relative");
+        doc.setAttribute("role", "document");
+
+        const title = d.createElement("h1");
+        title.classList.add("s-modal--header");
+        title.id = ariaLabelId;
+        title.textContent = "Custom 404 Options";
+
+        const form = d.createElement("form");
+        form.classList.add(
+            "s-modal--body",
+            "d-flex",
+            "flex__allcells6",
+            "fw-wrap",
+            "gs16"
+        );
+
+        form.addEventListener("change", ({ target }) => {
+            const { id, value } = target as HTMLInputElement;
+
+            const option = configs.find(({ site }) => site === id);
+
+            option
+                ? Object.assign(option, { imageURL: value })
+                : configs.push({ site: id, imageURL: value });
+
+            Store.save("overrides", configs);
+        });
+
+        const inputClasses = ["flex--item"];
+        const inputs = configs.map(({ imageURL, site }) => {
+            //TODO: add pretty labels
+            return makeStacksTextInput(site, site, {
+                value: imageURL,
+                classes: inputClasses,
+            })[0];
+        });
+
+        form.append(...inputs);
+
+        const close = d.createElement("button");
+        close.classList.add("s-modal--close", "s-btn", "s-btn__muted");
+        close.type = "button";
+        close.dataset.action = "s-modal#hide";
+
+        const svgNS = "http://www.w3.org/2000/svg";
+
+        const closeIcon = d.createElementNS(svgNS, "svg");
+        closeIcon.setAttribute("aria-hidden", "true");
+        closeIcon.setAttribute("viewBox", "0 0 14 14");
+        closeIcon.setAttribute("width", "14");
+        closeIcon.setAttribute("height", "14");
+        closeIcon.classList.add("svg-icon", "iconClearSm");
+
+        const iconPath = d.createElementNS(svgNS, "path");
+        iconPath.setAttribute(
+            "d",
+            "M12 3.41 10.59 2 7 5.59 3.41 2 2 3.41 5.59 7 2 10.59 3.41 12 7 8.41 10.59 12 12 10.59 8.41 7 12 3.41z"
+        );
+
+        closeIcon.append(iconPath);
+        close.append(closeIcon);
+        doc.append(title, form, close);
+        wrap.append(doc);
+        return wrap;
+    };
+
+    /**
+     * @summary adds a UI element for opening userscript config
+     */
+    const addConfigOptions = (configs: NotFoundOptions[]) => {
+        const itemId = "bring-back-404";
+
+        const menu = d.querySelector("ol.user-logged-in");
+        if (!menu) return console.debug("failed to find main menu");
+
+        const item = d.getElementById(itemId) || makeConfigItem(itemId);
+        if (item.isConnected) return;
+
+        menu.append(item);
+
+        const uiId = "bring-back-404-config";
+
+        item.addEventListener(
+            "click",
+            () => menu.append(makeConfigView(uiId, configs)),
+            { once: true }
+        );
+
+        item.addEventListener("click", (event) => {
+            event.preventDefault();
+            const modal = d.getElementById(uiId);
+            if (modal) Stacks?.showModal(modal);
+        });
+    };
 
     const pageNotFounds: NotFoundOptions[] = [
         {
@@ -172,4 +358,6 @@ type NotFoundOptions = {
     });
 
     d.body.append(image);
+
+    addConfigOptions(pageNotFounds);
 })(window, document, location);
