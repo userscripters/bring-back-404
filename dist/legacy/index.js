@@ -299,7 +299,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var contentModal = d.getElementById("content");
         if (!contentModal)
             return console.debug("missing content modal");
-        var alertImage = contentModal.querySelector("svg.spotAlertXL");
+        var alertImage = contentModal.querySelector("svg.spotAlertXL, [alt='Page not found']");
         if (!alertImage)
             return console.debug("missing 404 image");
         alertImage.replaceWith(image);

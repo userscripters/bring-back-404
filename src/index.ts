@@ -338,7 +338,9 @@ type StacksTextInputOptions = {
         const contentModal = d.getElementById("content");
         if (!contentModal) return console.debug("missing content modal");
 
-        const alertImage = contentModal.querySelector("svg.spotAlertXL");
+        const alertImage = contentModal.querySelector(
+            "svg.spotAlertXL, [alt='Page not found']"
+        );
         if (!alertImage) return console.debug("missing 404 image");
 
         alertImage.replaceWith(image);
