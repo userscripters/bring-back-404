@@ -118,8 +118,8 @@
             Store.save("overrides", configs);
         });
         const inputClasses = ["flex--item"];
-        const inputs = configs.map(({ imageURL, site }) => {
-            return makeStacksTextInput(site, site, {
+        const inputs = configs.map(({ imageURL, site, label }) => {
+            return makeStacksTextInput(site, label || site, {
                 value: imageURL,
                 classes: inputClasses,
             })[0];
@@ -164,74 +164,92 @@
     };
     const pageNotFounds = [
         {
+            label: "Stack Overflow",
             site: "stackoverflow",
             imageURL: "https://i.stack.imgur.com/okzBE.png",
         },
         {
+            label: "Meta Stack Overflow",
             site: "meta.stackoverflow",
             imageURL: "https://i.stack.imgur.com/0i2to.png",
         },
         {
+            label: "Ask Ubuntu",
             site: "askubuntu",
             imageURL: "https://i.stack.imgur.com/KopoQ.png",
         },
         {
+            label: "Super User",
             site: "superuser",
             imageURL: "https://i.stack.imgur.com/hMfYx.png",
         },
         {
+            label: "English Language Learners",
             site: "english.stackexchange",
             imageURL: "https://i.stack.imgur.com/cQLRt.png",
         },
         {
+            label: "Code Review",
             site: "codereview.stackexchange",
             imageURL: "https://i.stack.imgur.com/R4Tgd.png",
         },
         {
+            label: "Unix & Linux",
             site: "unix.stackexchange",
             imageURL: "https://i.stack.imgur.com/XQRh5.png",
         },
         {
+            label: "Science Fiction & Fantasy",
             site: "scifi.stackexchange",
             imageURL: "https://i.stack.imgur.com/UR35t.png",
         },
         {
+            label: "Mathematics",
             site: "math.stackexchange",
             imageURL: "https://i.stack.imgur.com/bHpU1.png",
         },
         {
+            label: "Server Fault",
             site: "serverfault",
             imageURL: "https://i.stack.imgur.com/W7VMk.png",
         },
         {
+            label: "Ask Different",
             site: "apple.stackexchange",
             imageURL: "https://i.stack.imgur.com/fCIaP.png",
         },
         {
+            label: "Cross Validated",
             site: "stats.stackexchange",
             imageURL: "https://i.stack.imgur.com/BqaS0.png",
         },
         {
+            label: "Arqade",
             site: "gaming.stackexchange",
             imageURL: "https://i.stack.imgur.com/C4jC1.png",
         },
         {
+            label: "Mi Yodeya",
             site: "judaism.stackexchange",
             imageURL: "https://i.stack.imgur.com/048MA.png",
         },
         {
+            label: "Webmasters",
             site: "webmasters.stackexchange",
             imageURL: "https://i.stack.imgur.com/Z8Y2o.png",
         },
         {
+            label: "Cryptography",
             site: "crypto.stackexchange",
             imageURL: "https://i.stack.imgur.com/2hyIe.png",
         },
         {
+            label: "Seasoned Advice",
             site: "cooking.stackexchange",
             imageURL: "https://i.stack.imgur.com/kSX5n.png",
         },
         {
+            label: "Home Improvement",
             site: "diy.stackexchange",
             imageURL: "https://i.stack.imgur.com/C4P5L.png",
         },
