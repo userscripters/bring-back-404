@@ -177,7 +177,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     };
     var addConfigOptions = function (configs) {
         var itemId = "bring-back-404";
-        var menu = d.querySelector("ol.user-logged-in");
+        var menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
         if (!menu)
             return console.debug("failed to find main menu");
         var item = d.getElementById(itemId) || makeConfigItem(itemId);

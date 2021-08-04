@@ -209,7 +209,7 @@ type StacksTextInputOptions = {
     const addConfigOptions = (configs: NotFoundOptions[]) => {
         const itemId = "bring-back-404";
 
-        const menu = d.querySelector("ol.user-logged-in");
+        const menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
         if (!menu) return console.debug("failed to find main menu");
 
         const item = d.getElementById(itemId) || makeConfigItem(itemId);
