@@ -38,7 +38,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         to[j] = from[i];
     return to;
 };
-(function (_w, d, l) {
+(function (w, d, l) {
     var Store = (function () {
         function Store() {
         }
@@ -187,10 +187,11 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var uiId = "bring-back-404-config";
         item.addEventListener("click", function () { return menu.append(makeConfigView(uiId, configs)); }, { once: true });
         item.addEventListener("click", function (event) {
+            var _a;
             event.preventDefault();
             var modal = d.getElementById(uiId);
             if (modal)
-                Stacks === null || Stacks === void 0 ? void 0 : Stacks.showModal(modal);
+                (_a = w.Stacks) === null || _a === void 0 ? void 0 : _a.showModal(modal);
         });
     };
     var pageNotFounds = [
@@ -348,4 +349,4 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     });
     d.body.append(image);
     addConfigOptions(pageNotFounds);
-})(window, document, location);
+})(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);

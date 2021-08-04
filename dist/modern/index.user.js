@@ -17,7 +17,7 @@
 // ==/UserScript==
 
 "use strict";
-((_w, d, l) => {
+((w, d, l) => {
     class Store {
         static clear() {
             const { storage, prefix } = this;
@@ -156,10 +156,11 @@
         const uiId = "bring-back-404-config";
         item.addEventListener("click", () => menu.append(makeConfigView(uiId, configs)), { once: true });
         item.addEventListener("click", (event) => {
+            var _a;
             event.preventDefault();
             const modal = d.getElementById(uiId);
             if (modal)
-                Stacks === null || Stacks === void 0 ? void 0 : Stacks.showModal(modal);
+                (_a = w.Stacks) === null || _a === void 0 ? void 0 : _a.showModal(modal);
         });
     };
     const pageNotFounds = [
@@ -309,4 +310,4 @@
     });
     d.body.append(image);
     addConfigOptions(pageNotFounds);
-})(window, document, location);
+})(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);

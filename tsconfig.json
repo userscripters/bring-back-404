@@ -14,7 +14,7 @@
         "skipLibCheck": true,
         "downlevelIteration": true,
         "outDir": "dist",
-        "types": ["@userscripters/stackexchange-global-types"]
+        "types": ["@userscripters/stackexchange-global-types", "greasemonkey"]
     },
     "exclude": ["dist"],
     "include": ["src"]

@@ -10,7 +10,11 @@ type StacksTextInputOptions = {
     value?: string;
 };
 
-((_w, d, l) => {
+interface Window {
+    Stacks: typeof Stacks
+}
+
+((w, d, l) => {
     class Store {
         static storage: Storage = localStorage;
 
@@ -228,7 +232,7 @@ type StacksTextInputOptions = {
         item.addEventListener("click", (event) => {
             event.preventDefault();
             const modal = d.getElementById(uiId);
-            if (modal) Stacks?.showModal(modal);
+            if (modal) w.Stacks?.showModal(modal);
         });
     };
 
@@ -395,4 +399,4 @@ type StacksTextInputOptions = {
     d.body.append(image);
 
     addConfigOptions(pageNotFounds);
-})(window, document, location);
+})(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);
