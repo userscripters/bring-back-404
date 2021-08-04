@@ -1,5 +1,5 @@
-| Community                 | Image                                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------------------ |
+| Community                 | Image                                                                                                                                   |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Stack Overflow            | [<img src="https://i.stack.imgur.com/okzBE.png" width="80" alt="Stack Overflow 404" />](https://i.stack.imgur.com/okzBE.png)            |
 | Meta Stack Overflow       | [<img src="https://i.stack.imgur.com/0i2to.png" width="80" alt="Meta Stack Overflow 404" />](https://i.stack.imgur.com/0i2to.png)       |
 | Ask Ubuntu                | [<img src="https://i.stack.imgur.com/KopoQ.png" width="80" alt="Ask Ubuntu 404" />](https://i.stack.imgur.com/KopoQ.png)                |
@@ -18,3 +18,6 @@
 | Cooking                   | [<img src="https://i.stack.imgur.com/kSX5n.png" width="80" alt="Cooking 404" />](https://i.stack.imgur.com/kSX5n.png)                   |
 | Crypto                    | [<img src="https://i.stack.imgur.com/2hyIe.png" width="80" alt="Crypto 404" />](https://i.stack.imgur.com/2hyIe.png)                    |
 | Webmasters                | [<img src="https://i.stack.imgur.com/Z8Y2o.png" width="80" alt="Webmasters 404" />](https://i.stack.imgur.com/Z8Y2o.png)                |
+| Chemistry                 | [<img src="https://i.stack.imgur.com/SwIib.png" width="80" alt="Chemistry 404" />](https://i.stack.imgur.com/SwIib.png)                 |
+| Raspberry Pi              | [<img src="https://i.stack.imgur.com/A02um.png" width="80" alt="Raspberry Pi 404" />](https://i.stack.imgur.com/A02um.png)              |
+| Emacs                     | [<img src="https://i.stack.imgur.com/KUafD.png" width="80" alt="Emacs 404" />](https://i.stack.imgur.com/KUafD.png)                     |

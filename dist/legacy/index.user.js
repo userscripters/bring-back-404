@@ -284,6 +284,21 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             site: "diy.stackexchange",
             imageURL: "https://i.stack.imgur.com/C4P5L.png",
         },
+        {
+            label: "Chemistry",
+            site: "chemistry.stackexchange",
+            imageURL: "https://i.stack.imgur.com/SwIib.png",
+        },
+        {
+            label: "Raspberry Pi",
+            site: "raspberrypi.stackexchange",
+            imageURL: "https://i.stack.imgur.com/A02um.png",
+        },
+        {
+            label: "Emacs",
+            site: "emacs.stackexchange",
+            imageURL: "https://i.stack.imgur.com/KUafD.png",
+        },
     ];
     var overrides = Store.load("overrides", []);
     overrides.forEach(function (option) {
