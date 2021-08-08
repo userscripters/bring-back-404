@@ -11,7 +11,7 @@ type StacksTextInputOptions = {
 };
 
 interface Window {
-    Stacks: typeof Stacks
+    Stacks: typeof Stacks;
 }
 
 ((w, d, l) => {
@@ -399,4 +399,8 @@ interface Window {
     d.body.append(image);
 
     addConfigOptions(pageNotFounds);
-})(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);
+})(
+    typeof unsafeWindow !== "undefined" ? unsafeWindow : window,
+    document,
+    location
+);
