@@ -120,6 +120,90 @@ interface Window {
         return [wrap, input];
     };
 
+    const addStyles = (d: Document) => {
+        const style = d.createElement("style");
+        d.head.append(style);
+        const { sheet } = style;
+        if (!sheet) return;
+
+        sheet.insertRule(".s-modal--dialog[draggable=true] { cursor: grab; }");
+    };
+
+    const makeDraggable = (id: string) => {
+        d.addEventListener("dragstart", ({ dataTransfer }) => {
+            const dummy = d.createElement("img");
+            dummy.src = "data:image/png;base64,AAAAAA==";
+            dataTransfer?.setDragImage(dummy, 0, 0);
+        });
+
+        let previousX = 0;
+        let previousY = 0;
+        let zeroed = 0;
+        let isDragging = false;
+
+        const handleCoordChange = ({ clientX, clientY }: MouseEvent) => {
+            const modal = d.getElementById(id);
+            if (!modal) return;
+
+            previousX ||= clientX;
+            previousY ||= clientY;
+
+            let {
+                style: { top, left },
+            } = modal;
+
+            //get computed styles the first time
+            if (!top && !left) {
+                const computed = w.getComputedStyle(modal);
+                top = computed.top;
+                left = computed.left;
+            }
+
+            const moveX = clientX - previousX;
+            const moveY = clientY - previousY;
+
+            //either mouse went off-screen, or we got a Sonic the Hedgehog
+            const superSonic = 500;
+            if ([moveX, moveY].map(Math.abs).some((c) => c > superSonic))
+                return;
+
+            const { style } = modal;
+            style.left = `${parseInt(left) + moveX}px`;
+            style.top = `${parseInt(top) + moveY}px`;
+
+            previousX = clientX;
+            previousY = clientY;
+        };
+
+        d.addEventListener("dragstart", (event) => {
+            const { target } = event;
+            if (target === d.getElementById(id)) isDragging = true;
+        });
+
+        d.addEventListener("dragend", ({ target }) => {
+            if (target === d.getElementById(id)) {
+                isDragging = false;
+                previousX = 0;
+                previousY = 0;
+            }
+        });
+
+        d.addEventListener("drag", (event) => {
+            //if clientX zeroes out 3 times in a row, we are dealing with an FF bug
+            zeroed = event.clientX ? 0 : zeroed < 3 ? zeroed + 1 : 3;
+
+            if (zeroed >= 3 || !isDragging) return;
+            return handleCoordChange(event);
+        });
+
+        d.addEventListener("dragover", (e) => {
+            if (isDragging) e.preventDefault();
+            //fixes this old FF bug: https://bugzilla.mozilla.org/show_bug.cgi?id=505521
+            if (zeroed < 3 || !isDragging) return;
+            return handleCoordChange(e);
+        });
+    };
+
     /**
      * @summary creates config modal element
      */
@@ -141,8 +225,12 @@ interface Window {
         dataset.controller = "s-modal";
 
         const doc = d.createElement("div");
-        doc.classList.add("s-modal--dialog", "ps-relative");
+        doc.classList.add("s-modal--dialog", "ps-relative", "hmx6");
         doc.setAttribute("role", "document");
+        doc.id = `${id}-document`;
+        doc.draggable = true;
+
+        makeDraggable(doc.id);
 
         const title = d.createElement("h1");
         title.classList.add("s-modal--header");
@@ -205,6 +293,50 @@ interface Window {
         doc.append(title, form, close);
         wrap.append(doc);
         return wrap;
+    };
+
+    /**
+     * @summary inserts custom 404 image into the page
+     */
+    const insert404Image = (d: Document, { imageURL }: NotFoundOptions) => {
+        const image = d.createElement("img");
+        image.src = imageURL;
+        image.alt = "Page not found";
+        image.decoding = "async";
+        image.width = 250;
+        image.style.display = "none";
+
+        image.addEventListener("error", () =>
+            console.debug(`failed to load 404 image on ${currentSite}`)
+        );
+
+        image.addEventListener("load", () => {
+            const contentModal = d.getElementById("content");
+            if (!contentModal) return console.debug("missing content modal");
+
+            const alertImage = contentModal.querySelector(
+                "svg.spotAlertXL, [alt='Page not found']"
+            );
+            if (!alertImage) return console.debug("missing 404 image");
+
+            alertImage.replaceWith(image);
+            image.style.display = "unset";
+
+            const header = contentModal.querySelector("h1");
+            if (!header) return console.debug("missing 404 header");
+
+            //removes excessive top margin before header
+            header.classList.remove("mt48");
+
+            const flexWrap = header.closest(".d-flex");
+            if (!flexWrap)
+                return console.debug("404 content does't use Flexbox");
+
+            //properly centers flex items vertically
+            flexWrap.classList.replace("ai-start", "ai-center");
+        });
+
+        d.body.append(image);
     };
 
     /**
@@ -351,6 +483,7 @@ interface Window {
         Object.assign(defaults, option);
     });
 
+    addStyles(d);
     addConfigOptions(pageNotFounds);
 
     const { hostname } = l;
@@ -360,45 +493,7 @@ interface Window {
     const config = pageNotFounds.find(({ site }) => site === currentSite);
     if (!config) return console.debug(`not on supported site: ${currentSite}`);
 
-    const { imageURL } = config;
-
-    const image = d.createElement("img");
-    image.src = imageURL;
-    image.alt = "Page not found";
-    image.decoding = "async";
-    image.width = 250;
-    image.style.display = "none";
-
-    image.addEventListener("error", () =>
-        console.debug(`failed to load 404 image on ${currentSite}`)
-    );
-
-    image.addEventListener("load", () => {
-        const contentModal = d.getElementById("content");
-        if (!contentModal) return console.debug("missing content modal");
-
-        const alertImage = contentModal.querySelector(
-            "svg.spotAlertXL, [alt='Page not found']"
-        );
-        if (!alertImage) return console.debug("missing 404 image");
-
-        alertImage.replaceWith(image);
-        image.style.display = "unset";
-
-        const header = contentModal.querySelector("h1");
-        if (!header) return console.debug("missing 404 header");
-
-        //removes excessive top margin before header
-        header.classList.remove("mt48");
-
-        const flexWrap = header.closest(".d-flex");
-        if (!flexWrap) return console.debug("404 content does't use Flexbox");
-
-        //properly centers flex items vertically
-        flexWrap.classList.replace("ai-start", "ai-center");
-    });
-
-    d.body.append(image);
+    insert404Image(d, config);
 })(
     typeof unsafeWindow !== "undefined" ? unsafeWindow : window,
     document,

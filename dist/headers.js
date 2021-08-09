@@ -4,11 +4,11 @@
 // @grant           none
 // @homepage        https://github.com/userscripters/bring-back-404#readme
 // @match           https://*.askubuntu.com/*
+// @match           https://*.mathoverflow.net/*
 // @match           https://*.serverfault.com/*
 // @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
 // @match           https://*.stackoverflow.com/*
-// @match           https://*.superuser.com/*
 // @name            bring-back-404
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/bring-back-404.git

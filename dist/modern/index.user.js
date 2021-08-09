@@ -4,11 +4,11 @@
 // @grant           none
 // @homepage        https://github.com/userscripters/bring-back-404#readme
 // @match           https://*.askubuntu.com/*
+// @match           https://*.mathoverflow.net/*
 // @match           https://*.serverfault.com/*
 // @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
 // @match           https://*.stackoverflow.com/*
-// @match           https://*.superuser.com/*
 // @name            bring-back-404
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/bring-back-404.git
@@ -86,6 +86,73 @@
         wrap.append(lblWrap, inputWrap);
         return [wrap, input];
     };
+    const addStyles = (d) => {
+        const style = d.createElement("style");
+        d.head.append(style);
+        const { sheet } = style;
+        if (!sheet)
+            return;
+        sheet.insertRule(".s-modal--dialog[draggable=true] { cursor: grab; }");
+    };
+    const makeDraggable = (id) => {
+        d.addEventListener("dragstart", ({ dataTransfer }) => {
+            const dummy = d.createElement("img");
+            dummy.src = "data:image/png;base64,AAAAAA==";
+            dataTransfer === null || dataTransfer === void 0 ? void 0 : dataTransfer.setDragImage(dummy, 0, 0);
+        });
+        let previousX = 0;
+        let previousY = 0;
+        let zeroed = 0;
+        let isDragging = false;
+        const handleCoordChange = ({ clientX, clientY }) => {
+            const modal = d.getElementById(id);
+            if (!modal)
+                return;
+            previousX || (previousX = clientX);
+            previousY || (previousY = clientY);
+            let { style: { top, left }, } = modal;
+            if (!top && !left) {
+                const computed = w.getComputedStyle(modal);
+                top = computed.top;
+                left = computed.left;
+            }
+            const moveX = clientX - previousX;
+            const moveY = clientY - previousY;
+            const superSonic = 500;
+            if ([moveX, moveY].map(Math.abs).some((c) => c > superSonic))
+                return;
+            const { style } = modal;
+            style.left = `${parseInt(left) + moveX}px`;
+            style.top = `${parseInt(top) + moveY}px`;
+            previousX = clientX;
+            previousY = clientY;
+        };
+        d.addEventListener("dragstart", (event) => {
+            const { target } = event;
+            if (target === d.getElementById(id))
+                isDragging = true;
+        });
+        d.addEventListener("dragend", ({ target }) => {
+            if (target === d.getElementById(id)) {
+                isDragging = false;
+                previousX = 0;
+                previousY = 0;
+            }
+        });
+        d.addEventListener("drag", (event) => {
+            zeroed = event.clientX ? 0 : zeroed < 3 ? zeroed + 1 : 3;
+            if (zeroed >= 3 || !isDragging)
+                return;
+            return handleCoordChange(event);
+        });
+        d.addEventListener("dragover", (e) => {
+            if (isDragging)
+                e.preventDefault();
+            if (zeroed < 3 || !isDragging)
+                return;
+            return handleCoordChange(e);
+        });
+    };
     const makeConfigView = (id, configs) => {
         const ariaLabelId = "modal-title";
         const ariaDescrId = "modal-description";
@@ -101,8 +168,11 @@
         dataset.sModalTarget = "modal";
         dataset.controller = "s-modal";
         const doc = d.createElement("div");
-        doc.classList.add("s-modal--dialog", "ps-relative");
+        doc.classList.add("s-modal--dialog", "ps-relative", "hmx6");
         doc.setAttribute("role", "document");
+        doc.id = `${id}-document`;
+        doc.draggable = true;
+        makeDraggable(doc.id);
         const title = d.createElement("h1");
         title.classList.add("s-modal--header");
         title.id = ariaLabelId;
@@ -143,6 +213,34 @@
         doc.append(title, form, close);
         wrap.append(doc);
         return wrap;
+    };
+    const insert404Image = (d, { imageURL }) => {
+        const image = d.createElement("img");
+        image.src = imageURL;
+        image.alt = "Page not found";
+        image.decoding = "async";
+        image.width = 250;
+        image.style.display = "none";
+        image.addEventListener("error", () => console.debug(`failed to load 404 image on ${currentSite}`));
+        image.addEventListener("load", () => {
+            const contentModal = d.getElementById("content");
+            if (!contentModal)
+                return console.debug("missing content modal");
+            const alertImage = contentModal.querySelector("svg.spotAlertXL, [alt='Page not found']");
+            if (!alertImage)
+                return console.debug("missing 404 image");
+            alertImage.replaceWith(image);
+            image.style.display = "unset";
+            const header = contentModal.querySelector("h1");
+            if (!header)
+                return console.debug("missing 404 header");
+            header.classList.remove("mt48");
+            const flexWrap = header.closest(".d-flex");
+            if (!flexWrap)
+                return console.debug("404 content does't use Flexbox");
+            flexWrap.classList.replace("ai-start", "ai-center");
+        });
+        d.body.append(image);
     };
     const addConfigOptions = (configs) => {
         const itemId = "bring-back-404";
@@ -277,37 +375,12 @@
             return pageNotFounds.push(option);
         Object.assign(defaults, option);
     });
+    addStyles(d);
     addConfigOptions(pageNotFounds);
     const { hostname } = l;
     const currentSite = hostname.split(".").slice(0, -1).join(".");
     const config = pageNotFounds.find(({ site }) => site === currentSite);
     if (!config)
         return console.debug(`not on supported site: ${currentSite}`);
-    const { imageURL } = config;
-    const image = d.createElement("img");
-    image.src = imageURL;
-    image.alt = "Page not found";
-    image.decoding = "async";
-    image.width = 250;
-    image.style.display = "none";
-    image.addEventListener("error", () => console.debug(`failed to load 404 image on ${currentSite}`));
-    image.addEventListener("load", () => {
-        const contentModal = d.getElementById("content");
-        if (!contentModal)
-            return console.debug("missing content modal");
-        const alertImage = contentModal.querySelector("svg.spotAlertXL, [alt='Page not found']");
-        if (!alertImage)
-            return console.debug("missing 404 image");
-        alertImage.replaceWith(image);
-        image.style.display = "unset";
-        const header = contentModal.querySelector("h1");
-        if (!header)
-            return console.debug("missing 404 header");
-        header.classList.remove("mt48");
-        const flexWrap = header.closest(".d-flex");
-        if (!flexWrap)
-            return console.debug("404 content does't use Flexbox");
-        flexWrap.classList.replace("ai-start", "ai-center");
-    });
-    d.body.append(image);
+    insert404Image(d, config);
 })(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);

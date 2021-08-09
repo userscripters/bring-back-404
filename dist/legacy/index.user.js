@@ -4,11 +4,11 @@
 // @grant           none
 // @homepage        https://github.com/userscripters/bring-back-404#readme
 // @match           https://*.askubuntu.com/*
+// @match           https://*.mathoverflow.net/*
 // @match           https://*.serverfault.com/*
 // @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
 // @match           https://*.stackoverflow.com/*
-// @match           https://*.superuser.com/*
 // @name            bring-back-404
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/bring-back-404.git
@@ -112,6 +112,76 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         wrap.append(lblWrap, inputWrap);
         return [wrap, input];
     };
+    var addStyles = function (d) {
+        var style = d.createElement("style");
+        d.head.append(style);
+        var sheet = style.sheet;
+        if (!sheet)
+            return;
+        sheet.insertRule(".s-modal--dialog[draggable=true] { cursor: grab; }");
+    };
+    var makeDraggable = function (id) {
+        d.addEventListener("dragstart", function (_a) {
+            var dataTransfer = _a.dataTransfer;
+            var dummy = d.createElement("img");
+            dummy.src = "data:image/png;base64,AAAAAA==";
+            dataTransfer === null || dataTransfer === void 0 ? void 0 : dataTransfer.setDragImage(dummy, 0, 0);
+        });
+        var previousX = 0;
+        var previousY = 0;
+        var zeroed = 0;
+        var isDragging = false;
+        var handleCoordChange = function (_a) {
+            var clientX = _a.clientX, clientY = _a.clientY;
+            var modal = d.getElementById(id);
+            if (!modal)
+                return;
+            previousX || (previousX = clientX);
+            previousY || (previousY = clientY);
+            var _b = modal.style, top = _b.top, left = _b.left;
+            if (!top && !left) {
+                var computed = w.getComputedStyle(modal);
+                top = computed.top;
+                left = computed.left;
+            }
+            var moveX = clientX - previousX;
+            var moveY = clientY - previousY;
+            var superSonic = 500;
+            if ([moveX, moveY].map(Math.abs).some(function (c) { return c > superSonic; }))
+                return;
+            var style = modal.style;
+            style.left = parseInt(left) + moveX + "px";
+            style.top = parseInt(top) + moveY + "px";
+            previousX = clientX;
+            previousY = clientY;
+        };
+        d.addEventListener("dragstart", function (event) {
+            var target = event.target;
+            if (target === d.getElementById(id))
+                isDragging = true;
+        });
+        d.addEventListener("dragend", function (_a) {
+            var target = _a.target;
+            if (target === d.getElementById(id)) {
+                isDragging = false;
+                previousX = 0;
+                previousY = 0;
+            }
+        });
+        d.addEventListener("drag", function (event) {
+            zeroed = event.clientX ? 0 : zeroed < 3 ? zeroed + 1 : 3;
+            if (zeroed >= 3 || !isDragging)
+                return;
+            return handleCoordChange(event);
+        });
+        d.addEventListener("dragover", function (e) {
+            if (isDragging)
+                e.preventDefault();
+            if (zeroed < 3 || !isDragging)
+                return;
+            return handleCoordChange(e);
+        });
+    };
     var makeConfigView = function (id, configs) {
         var ariaLabelId = "modal-title";
         var ariaDescrId = "modal-description";
@@ -127,8 +197,11 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         dataset.sModalTarget = "modal";
         dataset.controller = "s-modal";
         var doc = d.createElement("div");
-        doc.classList.add("s-modal--dialog", "ps-relative");
+        doc.classList.add("s-modal--dialog", "ps-relative", "hmx6");
         doc.setAttribute("role", "document");
+        doc.id = id + "-document";
+        doc.draggable = true;
+        makeDraggable(doc.id);
         var title = d.createElement("h1");
         title.classList.add("s-modal--header");
         title.id = ariaLabelId;
@@ -174,6 +247,37 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         doc.append(title, form, close);
         wrap.append(doc);
         return wrap;
+    };
+    var insert404Image = function (d, _a) {
+        var imageURL = _a.imageURL;
+        var image = d.createElement("img");
+        image.src = imageURL;
+        image.alt = "Page not found";
+        image.decoding = "async";
+        image.width = 250;
+        image.style.display = "none";
+        image.addEventListener("error", function () {
+            return console.debug("failed to load 404 image on " + currentSite);
+        });
+        image.addEventListener("load", function () {
+            var contentModal = d.getElementById("content");
+            if (!contentModal)
+                return console.debug("missing content modal");
+            var alertImage = contentModal.querySelector("svg.spotAlertXL, [alt='Page not found']");
+            if (!alertImage)
+                return console.debug("missing 404 image");
+            alertImage.replaceWith(image);
+            image.style.display = "unset";
+            var header = contentModal.querySelector("h1");
+            if (!header)
+                return console.debug("missing 404 header");
+            header.classList.remove("mt48");
+            var flexWrap = header.closest(".d-flex");
+            if (!flexWrap)
+                return console.debug("404 content does't use Flexbox");
+            flexWrap.classList.replace("ai-start", "ai-center");
+        });
+        d.body.append(image);
     };
     var addConfigOptions = function (configs) {
         var itemId = "bring-back-404";
@@ -311,6 +415,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             return pageNotFounds.push(option);
         Object.assign(defaults, option);
     });
+    addStyles(d);
     addConfigOptions(pageNotFounds);
     var hostname = l.hostname;
     var currentSite = hostname.split(".").slice(0, -1).join(".");
@@ -320,33 +425,5 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     });
     if (!config)
         return console.debug("not on supported site: " + currentSite);
-    var imageURL = config.imageURL;
-    var image = d.createElement("img");
-    image.src = imageURL;
-    image.alt = "Page not found";
-    image.decoding = "async";
-    image.width = 250;
-    image.style.display = "none";
-    image.addEventListener("error", function () {
-        return console.debug("failed to load 404 image on " + currentSite);
-    });
-    image.addEventListener("load", function () {
-        var contentModal = d.getElementById("content");
-        if (!contentModal)
-            return console.debug("missing content modal");
-        var alertImage = contentModal.querySelector("svg.spotAlertXL, [alt='Page not found']");
-        if (!alertImage)
-            return console.debug("missing 404 image");
-        alertImage.replaceWith(image);
-        image.style.display = "unset";
-        var header = contentModal.querySelector("h1");
-        if (!header)
-            return console.debug("missing 404 header");
-        header.classList.remove("mt48");
-        var flexWrap = header.closest(".d-flex");
-        if (!flexWrap)
-            return console.debug("404 content does't use Flexbox");
-        flexWrap.classList.replace("ai-start", "ai-center");
-    });
-    d.body.append(image);
+    insert404Image(d, config);
 })(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);
