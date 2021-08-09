@@ -1,7 +1,10 @@
 // ==UserScript==
 // @author          Oleg Valter <oleg.a.valter@gmail.com>
 // @description     Brings back 404 pages to Stack Exchange network
-// @grant           none
+// @grant           GM_deleteValue
+// @grant           GM_getValue
+// @grant           GM_listValues
+// @grant           GM_setValue
 // @homepage        https://github.com/userscripters/bring-back-404#readme
 // @match           https://*.askubuntu.com/*
 // @match           https://*.mathoverflow.net/*
@@ -17,38 +20,84 @@
 // ==/UserScript==
 
 "use strict";
-((w, d, l) => {
+(async (uw, w, d, l) => {
+    const storageMap = {
+        GM_setValue: {
+            get length() {
+                return GM_listValues().length;
+            },
+            clear() {
+                const keys = GM_listValues();
+                return keys.forEach((key) => GM_deleteValue(key));
+            },
+            key(index) {
+                return GM_listValues()[index];
+            },
+            getItem(key) {
+                return GM_getValue(key);
+            },
+            setItem(key, val) {
+                return GM_setValue(key, val);
+            },
+            removeItem(key) {
+                return GM_deleteValue(key);
+            },
+        },
+        GM: {
+            get length() {
+                return GM.listValues().then((v) => v.length);
+            },
+            async clear() {
+                const keys = await GM.listValues();
+                return keys.forEach((key) => GM.deleteValue(key));
+            },
+            async key(index) {
+                return (await GM.listValues())[index];
+            },
+            async getItem(key) {
+                const item = await GM.getValue(key);
+                return item === void 0 ? null : item === null || item === void 0 ? void 0 : item.toString();
+            },
+            setItem(key, val) {
+                return GM.setValue(key, val);
+            },
+            removeItem(key) {
+                return GM.deleteValue(key);
+            },
+        },
+    };
+    const [, storage] = Object.entries(storageMap).find(([key]) => typeof w[key] !== "undefined") || [];
     class Store {
         static clear() {
             const { storage, prefix } = this;
             storage.removeItem(prefix);
         }
-        static open() {
+        static async open() {
             const { storage, prefix } = this;
-            const val = storage.getItem(prefix);
+            const val = await storage.getItem(prefix);
             return val ? JSON.parse(val) : {};
         }
-        static load(key, def) {
-            const val = Store.open()[key];
+        static async load(key, def) {
+            const val = (await Store.open())[key];
             return val !== void 0 ? val : def;
         }
-        static save(key, val) {
+        static async save(key, val) {
             const { storage, prefix } = this;
-            const old = Store.open();
+            const old = await Store.open();
             old[key] = val;
-            storage.setItem(prefix, JSON.stringify(old));
+            return storage.setItem(prefix, JSON.stringify(old));
         }
-        static toggle(key) {
-            return Store.save(key, !Store.load(key));
+        static async toggle(key) {
+            return Store.save(key, !(await Store.load(key)));
         }
-        static remove(key) {
+        static async remove(key) {
             const { prefix } = this;
-            const old = this.load(prefix, {});
+            const old = await this.load(prefix, {});
             delete old[key];
             return Store.save(key, old);
         }
     }
-    Store.storage = localStorage;
+    Store.storage = storage || localStorage;
     Store.prefix = "bring-back-404";
     const makeConfigItem = (id) => {
         const item = d.createElement("li");
@@ -143,7 +192,7 @@
             previousY || (previousY = clientY);
             let { style: { top, left }, } = modal;
             if (!top && !left) {
-                const computed = w.getComputedStyle(modal);
+                const computed = uw.getComputedStyle(modal);
                 top = computed.top;
                 left = computed.left;
             }
@@ -297,7 +346,7 @@
             event.preventDefault();
             const modal = d.getElementById(uiId);
             if (modal)
-                (_a = w.Stacks) === null || _a === void 0 ? void 0 : _a.showModal(modal);
+                (_a = uw.Stacks) === null || _a === void 0 ? void 0 : _a.showModal(modal);
         });
     };
     class NotFoundConfig {
@@ -416,7 +465,7 @@
             imageURL: "https://i.stack.imgur.com/KUafD.png",
         },
     ].map((option) => new NotFoundConfig(option));
-    const overrides = Store.load("overrides", []);
+    const overrides = await Store.load("overrides", []);
     overrides.forEach((option) => {
         const defaults = pageNotFounds.find(({ site }) => site === option.site);
         if (!defaults)
@@ -431,4 +480,4 @@
     if (!config)
         return console.debug(`not on supported site: ${currentSite}`);
     insert404Image(d, config);
-})(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);
+})(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, window, document, location);

@@ -13,11 +13,85 @@ type StacksTextInputOptions = {
 
 interface Window {
     Stacks: typeof Stacks;
+    [x: string]: unknown;
 }
 
-((w, d, l) => {
+type RemoveIndex<T> = {
+    [P in keyof T as string extends P
+        ? never
+        : number extends P
+        ? never
+        : P]: T[P];
+};
+
+type AsyncStorage = RemoveIndex<
+    {
+        [P in keyof Storage]: Storage[P] extends Function
+            ? (
+                  ...args: Parameters<Storage[P]>
+              ) => Promise<ReturnType<Storage[P]>>
+            : Promise<Storage[P]>;
+    }
+>;
+
+(async (uw, w, d, l) => {
+    const storageMap: {
+        GM_setValue: Storage;
+        GM: AsyncStorage;
+    } = {
+        GM_setValue: {
+            get length() {
+                return GM_listValues().length;
+            },
+            clear() {
+                const keys = GM_listValues();
+                return keys.forEach((key) => GM_deleteValue(key));
+            },
+            key(index) {
+                return GM_listValues()[index];
+            },
+            getItem(key) {
+                return GM_getValue(key);
+            },
+            setItem(key, val) {
+                return GM_setValue(key, val);
+            },
+            removeItem(key) {
+                return GM_deleteValue(key);
+            },
+        },
+        GM: {
+            get length() {
+                return GM.listValues().then((v) => v.length);
+            },
+            async clear() {
+                const keys = await GM.listValues();
+                return keys.forEach((key) => GM.deleteValue(key));
+            },
+            async key(index) {
+                return (await GM.listValues())[index];
+            },
+            async getItem(key) {
+                const item = await GM.getValue(key);
+                return item === void 0 ? null : item?.toString();
+            },
+            setItem(key, val) {
+                return GM.setValue(key, val);
+            },
+            removeItem(key) {
+                return GM.deleteValue(key);
+            },
+        },
+    };
+
+    //TODO: switch to configurable preference
+    const [, storage] =
+        Object.entries(storageMap).find(
+            ([key]) => typeof w[key] !== "undefined"
+        ) || [];
+
     class Store {
-        static storage: Storage = localStorage;
+        static storage: Storage | AsyncStorage = storage || localStorage;
 
         static prefix = "bring-back-404";
 
@@ -26,32 +100,32 @@ interface Window {
             storage.removeItem(prefix);
         }
 
-        private static open() {
+        private static async open() {
             const { storage, prefix } = this;
-            const val = storage.getItem(prefix);
+            const val = await storage.getItem(prefix);
             return val ? JSON.parse(val) : {};
         }
 
-        static load<T>(key: string, def?: T): T {
-            const val = Store.open()[key];
+        static async load<T>(key: string, def?: T): Promise<T> {
+            const val = (await Store.open())[key];
             return val !== void 0 ? val : def;
         }
 
-        static save<T>(key: string, val: T): void {
+        static async save<T>(key: string, val: T) {
             const { storage, prefix } = this;
-            const old = Store.open();
+            const old = await Store.open();
             old[key] = val;
-            storage.setItem(prefix, JSON.stringify(old));
+            return storage.setItem(prefix, JSON.stringify(old));
         }
 
-        static toggle(key: string) {
-            return Store.save(key, !Store.load(key));
+        static async toggle(key: string) {
+            return Store.save(key, !(await Store.load(key)));
         }
 
-        static remove(key: string): void {
+        static async remove(key: string) {
             const { prefix } = this;
 
-            const old = this.load<Record<string, any>>(prefix, {});
+            const old = await this.load<Record<string, any>>(prefix, {});
             delete old[key];
 
             return Store.save(key, old);
@@ -174,6 +248,9 @@ interface Window {
         return svg;
     };
 
+    /**
+     * @summary adds userscript-specific styles
+     */
     const addStyles = (d: Document) => {
         const style = d.createElement("style");
         d.head.append(style);
@@ -214,7 +291,7 @@ interface Window {
 
             //get computed styles the first time
             if (!top && !left) {
-                const computed = w.getComputedStyle(modal);
+                const computed = uw.getComputedStyle(modal);
                 top = computed.top;
                 left = computed.left;
             }
@@ -314,12 +391,12 @@ interface Window {
             option
                 ? Object.assign(option, { imageURL: value })
                 : configs.push(
-                    new NotFoundConfig({
-                        site: id,
-                        imageURL: value,
-                        url: l.hostname,
-                    })
-                );
+                      new NotFoundConfig({
+                          site: id,
+                          imageURL: value,
+                          url: l.hostname,
+                      })
+                  );
 
             Store.save("overrides", configs);
         });
@@ -439,7 +516,7 @@ interface Window {
         item.addEventListener("click", (event) => {
             event.preventDefault();
             const modal = d.getElementById(uiId);
-            if (modal) w.Stacks?.showModal(modal);
+            if (modal) uw.Stacks?.showModal(modal);
         });
     };
 
@@ -563,7 +640,7 @@ interface Window {
         },
     ].map((option) => new NotFoundConfig(option));
 
-    const overrides = Store.load<NotFoundOptions[]>("overrides", []);
+    const overrides = await Store.load<NotFoundOptions[]>("overrides", []);
     overrides.forEach((option) => {
         const defaults = pageNotFounds.find(({ site }) => site === option.site);
         if (!defaults) return pageNotFounds.push(new NotFoundConfig(option));
@@ -583,6 +660,7 @@ interface Window {
     insert404Image(d, config);
 })(
     typeof unsafeWindow !== "undefined" ? unsafeWindow : window,
+    window,
     document,
     location
 );

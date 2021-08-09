@@ -5,7 +5,8 @@ output=$dist"/headers.js"
 
 generate tampermonkey \
     -o $output \
-    -m $(cat .matches)
+    -m $(cat .matches) \
+    -g get set delete list
 
 userscript="$(find -iwholename "./$dist/*\.js" -type f -not -iname "*headers\.js")"
 
