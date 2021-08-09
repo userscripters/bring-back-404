@@ -311,6 +311,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             return pageNotFounds.push(option);
         Object.assign(defaults, option);
     });
+    addConfigOptions(pageNotFounds);
     var hostname = l.hostname;
     var currentSite = hostname.split(".").slice(0, -1).join(".");
     var config = pageNotFounds.find(function (_a) {
@@ -348,5 +349,4 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         flexWrap.classList.replace("ai-start", "ai-center");
     });
     d.body.append(image);
-    addConfigOptions(pageNotFounds);
 })(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);

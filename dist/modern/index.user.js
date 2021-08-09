@@ -277,6 +277,7 @@
             return pageNotFounds.push(option);
         Object.assign(defaults, option);
     });
+    addConfigOptions(pageNotFounds);
     const { hostname } = l;
     const currentSite = hostname.split(".").slice(0, -1).join(".");
     const config = pageNotFounds.find(({ site }) => site === currentSite);
@@ -309,5 +310,4 @@
         flexWrap.classList.replace("ai-start", "ai-center");
     });
     d.body.append(image);
-    addConfigOptions(pageNotFounds);
 })(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, document, location);

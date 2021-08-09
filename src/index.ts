@@ -351,6 +351,8 @@ interface Window {
         Object.assign(defaults, option);
     });
 
+    addConfigOptions(pageNotFounds);
+
     const { hostname } = l;
 
     const currentSite = hostname.split(".").slice(0, -1).join(".");
@@ -397,8 +399,6 @@ interface Window {
     });
 
     d.body.append(image);
-
-    addConfigOptions(pageNotFounds);
 })(
     typeof unsafeWindow !== "undefined" ? unsafeWindow : window,
     document,
