@@ -43,6 +43,7 @@
     "@types/greasemonkey": "^4.0.2",
     "@types/mocha": "^8.2.3",
     "@types/node": "^16.4.13",
+    "@types/tampermonkey": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
     "@userscripters/generate-headers": "^1.6.4",
