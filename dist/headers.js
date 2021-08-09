@@ -13,5 +13,5 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
-// @version         0.6.1
+// @version         0.7.0
 // ==/UserScript==
