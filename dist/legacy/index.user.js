@@ -110,7 +110,33 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         lblWrap.append(label);
         inputWrap.append(input);
         wrap.append(lblWrap, inputWrap);
-        return [wrap, input];
+        return [wrap, input, label];
+    };
+    var makeStacksIcon = function (name, pathConfig, namespace) {
+        if (namespace === void 0) { namespace = "http://www.w3.org/2000/svg"; }
+        var svg = d.createElementNS(namespace, "svg");
+        svg.classList.add("svg-icon", name);
+        svg.setAttribute("width", "18");
+        svg.setAttribute("height", "18");
+        svg.setAttribute("viewBox", "0 0 18 18");
+        svg.setAttribute("aria-hidden", "true");
+        var path = d.createElementNS(namespace, "path");
+        path.setAttribute("d", pathConfig);
+        svg.append(path);
+        return [svg, path];
+    };
+    var makeLinkIcon = function (url, title) {
+        var ns = "http://www.w3.org/2000/svg";
+        var _a = __read(makeStacksIcon("iconGlobe", "M9 1C4.64 1 1 4.64 1 9c0 4.36 3.64 8 8 8 4.36 0 8-3.64 8-8\n            0-4.36-3.64-8-8-8zM8 15.32a6.46 6.46 0 01-4.3-2.74 6.46 6.46\n            0 0 1-.93-5.01L7 11.68v.8c0 .88.12 1.32 1\n            1.32v1.52zm5.72-2c-.2-.66-1-1.32-1.72-1.32h-1v-2c0-.44-.56-1-1-1H6V7h1c.44\n            0 1-.56 1-1V5h2c.88 0 1.4-.72 1.4-1.6v-.33a6.45 6.45 0 013.83 4.51 6.45 6.45\n            0 0 1-1.51 5.73v.01z", ns), 2), svg = _a[0], path = _a[1];
+        var ttl = d.createElementNS(ns, "title");
+        ttl.textContent = title;
+        svg.append(ttl);
+        var anchor = d.createElementNS(ns, "a");
+        anchor.setAttribute("href", url);
+        anchor.setAttribute("target", "_blank");
+        anchor.append(path);
+        svg.append(anchor);
+        return svg;
     };
     var addStyles = function (d) {
         var style = d.createElement("style");
@@ -119,6 +145,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         if (!sheet)
             return;
         sheet.insertRule(".s-modal--dialog[draggable=true] { cursor: grab; }");
+        sheet.insertRule(".iconGlobe path { fill: var(--black-400) !important; }");
     };
     var makeDraggable = function (id) {
         d.addEventListener("dragstart", function (_a) {
@@ -217,16 +244,24 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             });
             option
                 ? Object.assign(option, { imageURL: value })
-                : configs.push({ site: id, imageURL: value });
+                : configs.push(new NotFoundConfig({
+                    site: id,
+                    imageURL: value,
+                    url: l.hostname,
+                }));
             Store.save("overrides", configs);
         });
         var inputClasses = ["flex--item"];
         var inputs = configs.map(function (_a) {
-            var imageURL = _a.imageURL, site = _a.site, label = _a.label;
-            return makeStacksTextInput(site, label || site, {
+            var imageURL = _a.imageURL, site = _a.site, label = _a.label, notFoundURL = _a.notFoundURL;
+            var title = label || site;
+            var _b = __read(makeStacksTextInput(site, title, {
                 value: imageURL,
                 classes: inputClasses,
-            })[0];
+            }), 3), wrap = _b[0], _input = _b[1], lbl = _b[2];
+            lbl.append(d.createTextNode(" "), makeLinkIcon(notFoundURL, title + " 404 page"));
+            lbl.classList.add("mb8");
+            return wrap;
         });
         form.append.apply(form, __spreadArray([], __read(inputs)));
         var close = d.createElement("button");
@@ -298,6 +333,20 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                 (_a = w.Stacks) === null || _a === void 0 ? void 0 : _a.showModal(modal);
         });
     };
+    var NotFoundConfig = (function () {
+        function NotFoundConfig(options) {
+            Object.assign(this, options);
+        }
+        Object.defineProperty(NotFoundConfig.prototype, "notFoundURL", {
+            get: function () {
+                var _a = this, site = _a.site, url = _a.url;
+                return url || "https://" + site + ".com/404";
+            },
+            enumerable: false,
+            configurable: true
+        });
+        return NotFoundConfig;
+    }());
     var pageNotFounds = [
         {
             label: "Stack Overflow",
@@ -404,7 +453,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             site: "emacs.stackexchange",
             imageURL: "https://i.stack.imgur.com/KUafD.png",
         },
-    ];
+    ].map(function (option) { return new NotFoundConfig(option); });
     var overrides = Store.load("overrides", []);
     overrides.forEach(function (option) {
         var defaults = pageNotFounds.find(function (_a) {
@@ -412,7 +461,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             return site === option.site;
         });
         if (!defaults)
-            return pageNotFounds.push(option);
+            return pageNotFounds.push(new NotFoundConfig(option));
         Object.assign(defaults, option);
     });
     addStyles(d);

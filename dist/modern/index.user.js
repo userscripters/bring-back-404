@@ -84,7 +84,37 @@
         lblWrap.append(label);
         inputWrap.append(input);
         wrap.append(lblWrap, inputWrap);
-        return [wrap, input];
+        return [wrap, input, label];
+    };
+    const makeStacksIcon = (name, pathConfig, namespace = "http://www.w3.org/2000/svg") => {
+        const svg = d.createElementNS(namespace, "svg");
+        svg.classList.add("svg-icon", name);
+        svg.setAttribute("width", "18");
+        svg.setAttribute("height", "18");
+        svg.setAttribute("viewBox", "0 0 18 18");
+        svg.setAttribute("aria-hidden", "true");
+        const path = d.createElementNS(namespace, "path");
+        path.setAttribute("d", pathConfig);
+        svg.append(path);
+        return [svg, path];
+    };
+    const makeLinkIcon = (url, title) => {
+        const ns = "http://www.w3.org/2000/svg";
+        const [svg, path] = makeStacksIcon("iconGlobe", `M9 1C4.64 1 1 4.64 1 9c0 4.36 3.64 8 8 8 4.36 0 8-3.64 8-8
+            0-4.36-3.64-8-8-8zM8 15.32a6.46 6.46 0 01-4.3-2.74 6.46 6.46
+            0 0 1-.93-5.01L7 11.68v.8c0 .88.12 1.32 1
+            1.32v1.52zm5.72-2c-.2-.66-1-1.32-1.72-1.32h-1v-2c0-.44-.56-1-1-1H6V7h1c.44
+            0 1-.56 1-1V5h2c.88 0 1.4-.72 1.4-1.6v-.33a6.45 6.45 0 013.83 4.51 6.45 6.45
+            0 0 1-1.51 5.73v.01z`, ns);
+        const ttl = d.createElementNS(ns, "title");
+        ttl.textContent = title;
+        svg.append(ttl);
+        const anchor = d.createElementNS(ns, "a");
+        anchor.setAttribute("href", url);
+        anchor.setAttribute("target", "_blank");
+        anchor.append(path);
+        svg.append(anchor);
+        return svg;
     };
     const addStyles = (d) => {
         const style = d.createElement("style");
@@ -93,6 +123,7 @@
         if (!sheet)
             return;
         sheet.insertRule(".s-modal--dialog[draggable=true] { cursor: grab; }");
+        sheet.insertRule(".iconGlobe path { fill: var(--black-400) !important; }");
     };
     const makeDraggable = (id) => {
         d.addEventListener("dragstart", ({ dataTransfer }) => {
@@ -184,15 +215,23 @@
             const option = configs.find(({ site }) => site === id);
             option
                 ? Object.assign(option, { imageURL: value })
-                : configs.push({ site: id, imageURL: value });
+                : configs.push(new NotFoundConfig({
+                    site: id,
+                    imageURL: value,
+                    url: l.hostname,
+                }));
             Store.save("overrides", configs);
         });
         const inputClasses = ["flex--item"];
-        const inputs = configs.map(({ imageURL, site, label }) => {
-            return makeStacksTextInput(site, label || site, {
+        const inputs = configs.map(({ imageURL, site, label, notFoundURL }) => {
+            const title = label || site;
+            const [wrap, _input, lbl] = makeStacksTextInput(site, title, {
                 value: imageURL,
                 classes: inputClasses,
-            })[0];
+            });
+            lbl.append(d.createTextNode(" "), makeLinkIcon(notFoundURL, `${title} 404 page`));
+            lbl.classList.add("mb8");
+            return wrap;
         });
         form.append(...inputs);
         const close = d.createElement("button");
@@ -261,6 +300,15 @@
                 (_a = w.Stacks) === null || _a === void 0 ? void 0 : _a.showModal(modal);
         });
     };
+    class NotFoundConfig {
+        constructor(options) {
+            Object.assign(this, options);
+        }
+        get notFoundURL() {
+            const { site, url } = this;
+            return url || `https://${site}.com/404`;
+        }
+    }
     const pageNotFounds = [
         {
             label: "Stack Overflow",
@@ -367,12 +415,12 @@
             site: "emacs.stackexchange",
             imageURL: "https://i.stack.imgur.com/KUafD.png",
         },
-    ];
+    ].map((option) => new NotFoundConfig(option));
     const overrides = Store.load("overrides", []);
     overrides.forEach((option) => {
         const defaults = pageNotFounds.find(({ site }) => site === option.site);
         if (!defaults)
-            return pageNotFounds.push(option);
+            return pageNotFounds.push(new NotFoundConfig(option));
         Object.assign(defaults, option);
     });
     addStyles(d);

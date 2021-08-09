@@ -1,6 +1,7 @@
 type NotFoundOptions = {
     label?: string;
     site: string;
+    url?: string;
     imageURL: string;
 };
 
@@ -117,7 +118,60 @@ interface Window {
         inputWrap.append(input);
         wrap.append(lblWrap, inputWrap);
 
-        return [wrap, input];
+        return [wrap, input, label];
+    };
+
+    /**
+     * @see https://stackoverflow.design/product/resources/icons/
+     * @summary makes Stacks 18 x 18 icon
+     */
+    const makeStacksIcon = (
+        name: string,
+        pathConfig: string,
+        namespace = "http://www.w3.org/2000/svg"
+    ) => {
+        const svg = d.createElementNS(namespace, "svg");
+        svg.classList.add("svg-icon", name);
+        svg.setAttribute("width", "18");
+        svg.setAttribute("height", "18");
+        svg.setAttribute("viewBox", "0 0 18 18");
+        svg.setAttribute("aria-hidden", "true");
+
+        const path = d.createElementNS(namespace, "path");
+        path.setAttribute("d", pathConfig);
+
+        svg.append(path);
+        return [svg, path];
+    };
+
+    /**
+     * @see https://github.com/StackExchange/Stacks-Icons/blob/production/build/lib/Icon/Globe.svg
+     * @summary makes Stacks link icon
+     */
+    const makeLinkIcon = (url: string, title: string) => {
+        const ns = "http://www.w3.org/2000/svg";
+
+        const [svg, path] = makeStacksIcon(
+            "iconGlobe",
+            `M9 1C4.64 1 1 4.64 1 9c0 4.36 3.64 8 8 8 4.36 0 8-3.64 8-8
+            0-4.36-3.64-8-8-8zM8 15.32a6.46 6.46 0 01-4.3-2.74 6.46 6.46
+            0 0 1-.93-5.01L7 11.68v.8c0 .88.12 1.32 1
+            1.32v1.52zm5.72-2c-.2-.66-1-1.32-1.72-1.32h-1v-2c0-.44-.56-1-1-1H6V7h1c.44
+            0 1-.56 1-1V5h2c.88 0 1.4-.72 1.4-1.6v-.33a6.45 6.45 0 013.83 4.51 6.45 6.45
+            0 0 1-1.51 5.73v.01z`,
+            ns
+        );
+
+        const ttl = d.createElementNS(ns, "title");
+        ttl.textContent = title;
+        svg.append(ttl);
+
+        const anchor = d.createElementNS(ns, "a");
+        anchor.setAttribute("href", url);
+        anchor.setAttribute("target", "_blank");
+        anchor.append(path);
+        svg.append(anchor);
+        return svg;
     };
 
     const addStyles = (d: Document) => {
@@ -126,7 +180,13 @@ interface Window {
         const { sheet } = style;
         if (!sheet) return;
 
+        /* make modal cursor reflect its draggable state */
         sheet.insertRule(".s-modal--dialog[draggable=true] { cursor: grab; }");
+
+        /* dim bright styling of the globe icon */
+        sheet.insertRule(
+            ".iconGlobe path { fill: var(--black-400) !important; }"
+        );
     };
 
     const makeDraggable = (id: string) => {
@@ -207,7 +267,7 @@ interface Window {
     /**
      * @summary creates config modal element
      */
-    const makeConfigView = (id: string, configs: NotFoundOptions[]) => {
+    const makeConfigView = (id: string, configs: NotFoundConfig[]) => {
         const ariaLabelId = "modal-title";
         const ariaDescrId = "modal-description";
 
@@ -253,17 +313,32 @@ interface Window {
 
             option
                 ? Object.assign(option, { imageURL: value })
-                : configs.push({ site: id, imageURL: value });
+                : configs.push(
+                    new NotFoundConfig({
+                        site: id,
+                        imageURL: value,
+                        url: l.hostname,
+                    })
+                );
 
             Store.save("overrides", configs);
         });
 
         const inputClasses = ["flex--item"];
-        const inputs = configs.map(({ imageURL, site, label }) => {
-            return makeStacksTextInput(site, label || site, {
+        const inputs = configs.map(({ imageURL, site, label, notFoundURL }) => {
+            const title = label || site;
+
+            const [wrap, _input, lbl] = makeStacksTextInput(site, title, {
                 value: imageURL,
                 classes: inputClasses,
-            })[0];
+            });
+
+            lbl.append(
+                d.createTextNode(" "),
+                makeLinkIcon(notFoundURL, `${title} 404 page`)
+            );
+            lbl.classList.add("mb8");
+            return wrap;
         });
 
         form.append(...inputs);
@@ -298,7 +373,7 @@ interface Window {
     /**
      * @summary inserts custom 404 image into the page
      */
-    const insert404Image = (d: Document, { imageURL }: NotFoundOptions) => {
+    const insert404Image = (d: Document, { imageURL }: NotFoundConfig) => {
         const image = d.createElement("img");
         image.src = imageURL;
         image.alt = "Page not found";
@@ -342,7 +417,7 @@ interface Window {
     /**
      * @summary adds a UI element for opening userscript config
      */
-    const addConfigOptions = (configs: NotFoundOptions[]) => {
+    const addConfigOptions = (configs: NotFoundConfig[]) => {
         const itemId = "bring-back-404";
 
         const menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
@@ -368,7 +443,19 @@ interface Window {
         });
     };
 
-    const pageNotFounds: NotFoundOptions[] = [
+    interface NotFoundConfig extends NotFoundOptions {}
+    class NotFoundConfig {
+        constructor(options: NotFoundOptions) {
+            Object.assign(this, options);
+        }
+
+        get notFoundURL() {
+            const { site, url } = this;
+            return url || `https://${site}.com/404`;
+        }
+    }
+
+    const pageNotFounds: NotFoundConfig[] = [
         {
             label: "Stack Overflow",
             site: "stackoverflow",
@@ -474,12 +561,12 @@ interface Window {
             site: "emacs.stackexchange",
             imageURL: "https://i.stack.imgur.com/KUafD.png",
         },
-    ];
+    ].map((option) => new NotFoundConfig(option));
 
     const overrides = Store.load<NotFoundOptions[]>("overrides", []);
     overrides.forEach((option) => {
         const defaults = pageNotFounds.find(({ site }) => site === option.site);
-        if (!defaults) return pageNotFounds.push(option);
+        if (!defaults) return pageNotFounds.push(new NotFoundConfig(option));
         Object.assign(defaults, option);
     });
 
