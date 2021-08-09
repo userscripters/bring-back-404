@@ -16,7 +16,7 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
-// @version         0.8.0
+// @version         0.9.0
 // ==/UserScript==
 
 "use strict";
@@ -202,8 +202,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                                     case 1:
                                         old = _b.sent();
                                         old[key] = val;
-                                        storage.setItem(prefix, JSON.stringify(old));
-                                        return [2];
+                                        return [2, storage.setItem(prefix, JSON.stringify(old))];
                                 }
                             });
                         });

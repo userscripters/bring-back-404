@@ -391,12 +391,12 @@ type AsyncStorage = RemoveIndex<
             option
                 ? Object.assign(option, { imageURL: value })
                 : configs.push(
-                      new NotFoundConfig({
-                          site: id,
-                          imageURL: value,
-                          url: l.hostname,
-                      })
-                  );
+                    new NotFoundConfig({
+                        site: id,
+                        imageURL: value,
+                        url: l.hostname,
+                    })
+                );
 
             Store.save("overrides", configs);
         });
