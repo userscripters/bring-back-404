@@ -13,7 +13,7 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
-// @version         0.7.0
+// @version         0.8.0
 // ==/UserScript==
 
 "use strict";((g,m,p)=>{class u{static clear(){const{storage:e,prefix:t}=this;e.removeItem(t)}static open(){const{storage:e,prefix:t}=this;var a=e.getItem(t);return a?JSON.parse(a):{}}static load(e,t){e=u.open()[e];return void 0!==e?e:t}static save(e,t){const{storage:a,prefix:s}=this,i=u.open();i[e]=t,a.setItem(s,JSON.stringify(i))}static toggle(e){return u.save(e,!u.load(e))}static remove(e){var t=this["prefix"];const a=this.load(t,{});return delete a[e],u.save(e,a)}}u.storage=localStorage,u.prefix="bring-back-404";const h=(e,t,{classes:a=[],placeholder:s="",value:i=""}={})=>{const n=m.createElement("div");n.classList.add("d-flex","gs4","gsy","fd-column",...a);const c=m.createElement("div");c.classList.add("flex--item");const r=m.createElement("label");r.classList.add("d-block","s-label"),r.htmlFor=e,r.textContent=t;const o=m.createElement("div");o.classList.add("d-flex","ps-relative");const l=m.createElement("input");return l.classList.add("s-input"),l.id=e,l.type="text",l.placeholder=s,l.value=i,c.append(r),o.append(l),n.append(c,o),[n,l,r]},b=(e,t)=>{var a="http://www.w3.org/2000/svg";const[s,i]=((e,t,a)=>{const s=m.createElementNS(a,"svg");s.classList.add("svg-icon",e),s.setAttribute("width","18"),s.setAttribute("height","18"),s.setAttribute("viewBox","0 0 18 18"),s.setAttribute("aria-hidden","true");const i=m.createElementNS(a,"path");return i.setAttribute("d",t),s.append(i),[s,i]})("iconGlobe",`M9 1C4.64 1 1 4.64 1 9c0 4.36 3.64 8 8 8 4.36 0 8-3.64 8-8
