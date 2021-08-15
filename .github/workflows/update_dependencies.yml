@@ -23,7 +23,7 @@ jobs:
                   npm install --production=false
               env:
                   NODE_AUTH_TOKEN: ${{github.token}}
-                  NODE_END: production
+                  NODE_ENV: production
             - name: Update to the latest minor/patch version
               run: npx npm-check-updates -u --target minor
             - name: Install updated dependencies & update lockfile
