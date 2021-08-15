@@ -14,6 +14,7 @@
 // @match           https://*.stackoverflow.com/*
 // @name            bring-back-404
 // @namespace       userscripters
+// @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
 // @version         0.9.0
