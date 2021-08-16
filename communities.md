@@ -21,3 +21,6 @@
 | Chemistry                 | [<img src="https://i.stack.imgur.com/SwIib.png" width="80" alt="Chemistry 404" />](https://i.stack.imgur.com/SwIib.png)                 |
 | Raspberry Pi              | [<img src="https://i.stack.imgur.com/A02um.png" width="80" alt="Raspberry Pi 404" />](https://i.stack.imgur.com/A02um.png)              |
 | Emacs                     | [<img src="https://i.stack.imgur.com/KUafD.png" width="80" alt="Emacs 404" />](https://i.stack.imgur.com/KUafD.png)                     |
+| Database Administrators   | [<img src="https://i.stack.imgur.com/ly6am.png" width="80" alt="404" />](https://i.stack.imgur.com/ly6am.png)                           |
+| Graphic Design            | [<img src="https://i.stack.imgur.com/FwQQL.png" width="80" alt="404" />](https://i.stack.imgur.com/FwQQL.png)                           |
+| Android Enthusiasts       | [<img src="https://i.stack.imgur.com/kgFiY.png" width="80" alt="404" />](https://i.stack.imgur.com/kgFiY.png)                           |

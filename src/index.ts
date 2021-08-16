@@ -638,6 +638,21 @@ type AsyncStorage = RemoveIndex<
             site: "emacs.stackexchange",
             imageURL: "https://i.stack.imgur.com/KUafD.png",
         },
+        {
+            label: "Android Enthusiasts",
+            site: "android.stackexchange",
+            imageURL: "https://i.stack.imgur.com/kgFiY.png",
+        },
+        {
+            label: "Graphic Design",
+            site: "graphicdesign.stackexchange",
+            imageURL: "https://i.stack.imgur.com/FwQQL.png",
+        },
+        {
+            label: "Database Administrators",
+            site: "dba.stackexchange",
+            imageURL: "https://i.stack.imgur.com/ly6am.png",
+        },
     ].map((option) => new NotFoundConfig(option));
 
     const overrides = await Store.load<NotFoundOptions[]>("overrides", []);

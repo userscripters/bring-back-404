@@ -621,6 +621,21 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                         site: "emacs.stackexchange",
                         imageURL: "https://i.stack.imgur.com/KUafD.png",
                     },
+                    {
+                        label: "Android Enthusiasts",
+                        site: "android.stackexchange",
+                        imageURL: "https://i.stack.imgur.com/kgFiY.png",
+                    },
+                    {
+                        label: "Graphic Design",
+                        site: "graphicdesign.stackexchange",
+                        imageURL: "https://i.stack.imgur.com/FwQQL.png",
+                    },
+                    {
+                        label: "Database Administrators",
+                        site: "dba.stackexchange",
+                        imageURL: "https://i.stack.imgur.com/ly6am.png",
+                    },
                 ].map(function (option) { return new NotFoundConfig(option); });
                 return [4, Store.load("overrides", [])];
             case 1:
