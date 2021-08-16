@@ -34,7 +34,7 @@ type AsyncStorage = RemoveIndex<
     }
 >;
 
-(async (uw, w, d, l) => {
+((uw, w, d, l) => {
     const storageMap: {
         GM_setValue: Storage;
         GM: AsyncStorage;
@@ -450,7 +450,10 @@ type AsyncStorage = RemoveIndex<
     /**
      * @summary inserts custom 404 image into the page
      */
-    const insert404Image = (d: Document, { imageURL }: NotFoundConfig) => {
+    const insert404Image = (
+        d: Document,
+        { imageURL, site }: NotFoundConfig
+    ) => {
         const image = d.createElement("img");
         image.src = imageURL;
         image.alt = "Page not found";
@@ -459,7 +462,7 @@ type AsyncStorage = RemoveIndex<
         image.style.display = "none";
 
         image.addEventListener("error", () =>
-            console.debug(`failed to load 404 image on ${currentSite}`)
+            console.debug(`failed to load 404 image on ${site}`)
         );
 
         image.addEventListener("load", () => {
@@ -655,24 +658,30 @@ type AsyncStorage = RemoveIndex<
         },
     ].map((option) => new NotFoundConfig(option));
 
-    const overrides = await Store.load<NotFoundOptions[]>("overrides", []);
-    overrides.forEach((option) => {
-        const defaults = pageNotFounds.find(({ site }) => site === option.site);
-        if (!defaults) return pageNotFounds.push(new NotFoundConfig(option));
-        Object.assign(defaults, option);
+    w.addEventListener("load", async () => {
+        const overrides = await Store.load<NotFoundOptions[]>("overrides", []);
+        overrides.forEach((option) => {
+            const defaults = pageNotFounds.find(
+                ({ site }) => site === option.site
+            );
+            if (!defaults)
+                return pageNotFounds.push(new NotFoundConfig(option));
+            Object.assign(defaults, option);
+        });
+
+        addStyles(d);
+        addConfigOptions(pageNotFounds);
+
+        const { hostname } = l;
+
+        const currentSite = hostname.split(".").slice(0, -1).join(".");
+
+        const config = pageNotFounds.find(({ site }) => site === currentSite);
+        if (!config)
+            return console.debug(`not on supported site: ${currentSite}`);
+
+        insert404Image(d, config);
     });
-
-    addStyles(d);
-    addConfigOptions(pageNotFounds);
-
-    const { hostname } = l;
-
-    const currentSite = hostname.split(".").slice(0, -1).join(".");
-
-    const config = pageNotFounds.find(({ site }) => site === currentSite);
-    if (!config) return console.debug(`not on supported site: ${currentSite}`);
-
-    insert404Image(d, config);
 })(
     typeof unsafeWindow !== "undefined" ? unsafeWindow : window,
     window,
