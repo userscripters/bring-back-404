@@ -17,7 +17,7 @@
 // @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
-// @version         0.10.0
+// @version         1.0.0
 // ==/UserScript==
 
 "use strict";
