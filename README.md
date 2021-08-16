@@ -6,7 +6,7 @@
 | Name         | @userscripters/bring-back-404    |
 | Description  | Brings back 404 pages to Stack Exchange network           |
 | License      | [GPL-3.0-or-later](https://spdx.org/licenses/GPL-3.0-or-later)                 |
-| Version      | 0.9.0               |
+| Version      | 0.10.0               |
 
 # Support
 
