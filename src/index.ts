@@ -528,7 +528,9 @@ type AsyncStorage = RemoveIndex<
         const contentModal = d.getElementById("content");
         if (!contentModal) return console.debug("missing content modal");
 
-        const headline = contentModal.querySelector("h1");
+        const headline = contentModal.querySelector(
+            "h1:not(#question-header > h1)"
+        );
         if (!header || !headline) return;
 
         headline.textContent = header;
@@ -699,6 +701,9 @@ type AsyncStorage = RemoveIndex<
     ].map((option) => new NotFoundConfig(option));
 
     w.addEventListener("load", async () => {
+        const { status } = await fetch(l.href);
+        if (status !== 404) return;
+
         const overrides = await Store.load<NotFoundOptions[]>("overrides", []);
         overrides.forEach((option) => {
             const defaults = pageNotFounds.find(

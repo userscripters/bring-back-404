@@ -493,7 +493,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var contentModal = d.getElementById("content");
         if (!contentModal)
             return console.debug("missing content modal");
-        var headline = contentModal.querySelector("h1");
+        var headline = contentModal.querySelector("h1:not(#question-header > h1)");
         if (!header || !headline)
             return;
         headline.textContent = header;
@@ -654,11 +654,16 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         },
     ].map(function (option) { return new NotFoundConfig(option); });
     w.addEventListener("load", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var overrides, hostname, currentSite, config;
+        var status, overrides, hostname, currentSite, config;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4, Store.load("overrides", [])];
+                case 0: return [4, fetch(l.href)];
                 case 1:
+                    status = (_a.sent()).status;
+                    if (status !== 404)
+                        return [2];
+                    return [4, Store.load("overrides", [])];
+                case 2:
                     overrides = _a.sent();
                     overrides.forEach(function (option) {
                         var defaults = pageNotFounds.find(function (_a) {
