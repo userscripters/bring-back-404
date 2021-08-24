@@ -8,6 +8,7 @@ type NotFoundOptions = {
 type StacksTextInputOptions = {
     classes?: string[];
     placeholder?: string;
+    title?: string;
     value?: string;
 };
 
@@ -160,23 +161,15 @@ type AsyncStorage = RemoveIndex<
      */
     const makeStacksTextInput = (
         id: string,
-        title: string,
         {
             classes = [],
             placeholder = "",
+            title = "",
             value = "",
         }: StacksTextInputOptions = {}
     ) => {
         const wrap = d.createElement("div");
         wrap.classList.add("d-flex", "gs4", "gsy", "fd-column", ...classes);
-
-        const lblWrap = d.createElement("div");
-        lblWrap.classList.add("flex--item");
-
-        const label = d.createElement("label");
-        label.classList.add("d-block", "s-label");
-        label.htmlFor = id;
-        label.textContent = title;
 
         const inputWrap = d.createElement("div");
         inputWrap.classList.add("d-flex", "ps-relative");
@@ -188,11 +181,24 @@ type AsyncStorage = RemoveIndex<
         input.placeholder = placeholder;
         input.value = value;
 
-        lblWrap.append(label);
         inputWrap.append(input);
-        wrap.append(lblWrap, inputWrap);
+        wrap.append(inputWrap);
 
-        return [wrap, input, label];
+        if (title) {
+            const lblWrap = d.createElement("div");
+            lblWrap.classList.add("flex--item");
+
+            const label = d.createElement("label");
+            label.classList.add("d-block", "s-label");
+            label.htmlFor = id;
+            label.textContent = title;
+
+            lblWrap.append(label);
+            wrap.prepend(lblWrap);
+            return [wrap, input, label];
+        }
+
+        return [wrap, input];
     };
 
     /**
