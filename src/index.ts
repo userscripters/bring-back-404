@@ -701,9 +701,6 @@ type AsyncStorage = RemoveIndex<
     ].map((option) => new NotFoundConfig(option));
 
     w.addEventListener("load", async () => {
-        const { status } = await fetch(l.href);
-        if (status !== 404) return;
-
         const overrides = await Store.load<NotFoundOptions[]>("overrides", []);
         overrides.forEach((option) => {
             const defaults = pageNotFounds.find(
@@ -716,6 +713,9 @@ type AsyncStorage = RemoveIndex<
 
         addStyles(d);
         addConfigOptions(pageNotFounds);
+
+        const { status } = await fetch(l.href);
+        if (status !== 404) return;
 
         const { hostname } = l;
 

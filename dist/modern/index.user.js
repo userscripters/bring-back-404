@@ -499,9 +499,6 @@
         },
     ].map((option) => new NotFoundConfig(option));
     w.addEventListener("load", async () => {
-        const { status } = await fetch(l.href);
-        if (status !== 404)
-            return;
         const overrides = await Store.load("overrides", []);
         overrides.forEach((option) => {
             const defaults = pageNotFounds.find(({ site }) => site === option.site);
@@ -511,6 +508,9 @@
         });
         addStyles(d);
         addConfigOptions(pageNotFounds);
+        const { status } = await fetch(l.href);
+        if (status !== 404)
+            return;
         const { hostname } = l;
         const currentSite = hostname.split(".").slice(0, -1).join(".");
         const config = pageNotFounds.find(({ site }) => site === currentSite) ||
