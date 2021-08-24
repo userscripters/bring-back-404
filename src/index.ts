@@ -716,9 +716,13 @@ type AsyncStorage = RemoveIndex<
 
         const currentSite = hostname.split(".").slice(0, -1).join(".");
 
-        const config = pageNotFounds.find(({ site }) => site === currentSite);
-        if (!config)
-            return console.debug(`not on supported site: ${currentSite}`);
+        const config =
+            pageNotFounds.find(({ site }) => site === currentSite) ||
+            new NotFoundConfig({
+                site: currentSite,
+                header: "Arrrggghhh!",
+                imageURL: "https://i.stack.imgur.com/ata1R.jpg",
+            });
 
         insert404Image(d, config);
         modify404Headline(d, config);

@@ -252,17 +252,11 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         item.append(link);
         return item;
     };
-    var makeStacksTextInput = function (id, title, _a) {
+    var makeStacksTextInput = function (id, _a) {
         var _b;
-        var _c = _a === void 0 ? {} : _a, _d = _c.classes, classes = _d === void 0 ? [] : _d, _e = _c.placeholder, placeholder = _e === void 0 ? "" : _e, _f = _c.value, value = _f === void 0 ? "" : _f;
+        var _c = _a === void 0 ? {} : _a, _d = _c.classes, classes = _d === void 0 ? [] : _d, _e = _c.placeholder, placeholder = _e === void 0 ? "" : _e, _f = _c.title, title = _f === void 0 ? "" : _f, _g = _c.value, value = _g === void 0 ? "" : _g;
         var wrap = d.createElement("div");
         (_b = wrap.classList).add.apply(_b, __spreadArray(["d-flex", "gs4", "gsy", "fd-column"], __read(classes)));
-        var lblWrap = d.createElement("div");
-        lblWrap.classList.add("flex--item");
-        var label = d.createElement("label");
-        label.classList.add("d-block", "s-label");
-        label.htmlFor = id;
-        label.textContent = title;
         var inputWrap = d.createElement("div");
         inputWrap.classList.add("d-flex", "ps-relative");
         var input = d.createElement("input");
@@ -271,10 +265,20 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         input.type = "text";
         input.placeholder = placeholder;
         input.value = value;
-        lblWrap.append(label);
         inputWrap.append(input);
-        wrap.append(lblWrap, inputWrap);
-        return [wrap, input, label];
+        wrap.append(inputWrap);
+        if (title) {
+            var lblWrap = d.createElement("div");
+            lblWrap.classList.add("flex--item");
+            var label = d.createElement("label");
+            label.classList.add("d-block", "s-label");
+            label.htmlFor = id;
+            label.textContent = title;
+            lblWrap.append(label);
+            wrap.prepend(lblWrap);
+            return [wrap, input, label];
+        }
+        return [wrap, input];
     };
     var makeStacksIcon = function (name, pathConfig, namespace) {
         if (namespace === void 0) { namespace = "http://www.w3.org/2000/svg"; }
@@ -400,32 +404,38 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var form = d.createElement("form");
         form.classList.add("s-modal--body", "d-flex", "flex__allcells6", "fw-wrap", "gs16");
         form.addEventListener("change", function (_a) {
+            var _b, _c;
             var target = _a.target;
-            var _b = target, id = _b.id, value = _b.value;
+            var _d = target, id = _d.id, value = _d.value;
+            var _e = __read(id.split("-"), 2), siteId = _e[0], configProp = _e[1];
             var option = configs.find(function (_a) {
                 var site = _a.site;
-                return site === id;
+                return site === siteId;
             });
             option
-                ? Object.assign(option, { imageURL: value })
-                : configs.push(new NotFoundConfig({
-                    site: id,
-                    imageURL: value,
-                    url: l.hostname,
-                }));
+                ? Object.assign(option, (_b = {}, _b[configProp] = value, _b))
+                : configs.push(new NotFoundConfig((_c = {
+                        site: siteId
+                    },
+                    _c[configProp] = value,
+                    _c.url = l.hostname,
+                    _c)));
             Store.save("overrides", configs);
         });
-        var inputClasses = ["flex--item"];
         var inputs = configs.map(function (_a) {
-            var imageURL = _a.imageURL, site = _a.site, label = _a.label, notFoundURL = _a.notFoundURL;
+            var imageURL = _a.imageURL, site = _a.site, label = _a.label, notFoundURL = _a.notFoundURL, header = _a.header;
             var title = label || site;
-            var _b = __read(makeStacksTextInput(site, title, {
-                value: imageURL,
-                classes: inputClasses,
-            }), 3), wrap = _b[0], _input = _b[1], lbl = _b[2];
+            var wrapper = d.createElement("div");
+            wrapper.classList.add("flex--item");
+            var _b = __read(makeStacksTextInput(site + "-imageURL", { value: imageURL, title: title }), 3), imageInputWrap = _b[0], _input = _b[1], lbl = _b[2];
             lbl.append(d.createTextNode(" "), makeLinkIcon(notFoundURL, title + " 404 page"));
             lbl.classList.add("mb8");
-            return wrap;
+            var _c = __read(makeStacksTextInput(site + "-header", {
+                placeholder: "custom header",
+                value: header || "",
+            }), 1), headerInputWrap = _c[0];
+            wrapper.append(imageInputWrap, headerInputWrap);
+            return wrapper;
         });
         form.append.apply(form, __spreadArray([], __read(inputs)));
         var close = d.createElement("button");
@@ -448,7 +458,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         return wrap;
     };
     var insert404Image = function (d, _a) {
-        var imageURL = _a.imageURL, site = _a.site;
+        var _b = _a.imageURL, imageURL = _b === void 0 ? "" : _b, site = _a.site;
         var image = d.createElement("img");
         image.src = imageURL;
         image.alt = "Page not found";
@@ -477,6 +487,16 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             flexWrap.classList.replace("ai-start", "ai-center");
         });
         d.body.append(image);
+    };
+    var modify404Headline = function (d, _a) {
+        var header = _a.header;
+        var contentModal = d.getElementById("content");
+        if (!contentModal)
+            return console.debug("missing content modal");
+        var headline = contentModal.querySelector("h1");
+        if (!header || !headline)
+            return;
+        headline.textContent = header;
     };
     var addConfigOptions = function (configs) {
         var itemId = "bring-back-404";
@@ -656,10 +676,14 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                     config = pageNotFounds.find(function (_a) {
                         var site = _a.site;
                         return site === currentSite;
-                    });
-                    if (!config)
-                        return [2, console.debug("not on supported site: " + currentSite)];
+                    }) ||
+                        new NotFoundConfig({
+                            site: currentSite,
+                            header: "Arrrggghhh!",
+                            imageURL: "https://i.stack.imgur.com/ata1R.jpg",
+                        });
                     insert404Image(d, config);
+                    modify404Headline(d, config);
                     return [2];
             }
         });

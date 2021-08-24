@@ -114,15 +114,9 @@
         item.append(link);
         return item;
     };
-    const makeStacksTextInput = (id, title, { classes = [], placeholder = "", value = "", } = {}) => {
+    const makeStacksTextInput = (id, { classes = [], placeholder = "", title = "", value = "", } = {}) => {
         const wrap = d.createElement("div");
         wrap.classList.add("d-flex", "gs4", "gsy", "fd-column", ...classes);
-        const lblWrap = d.createElement("div");
-        lblWrap.classList.add("flex--item");
-        const label = d.createElement("label");
-        label.classList.add("d-block", "s-label");
-        label.htmlFor = id;
-        label.textContent = title;
         const inputWrap = d.createElement("div");
         inputWrap.classList.add("d-flex", "ps-relative");
         const input = d.createElement("input");
@@ -131,10 +125,20 @@
         input.type = "text";
         input.placeholder = placeholder;
         input.value = value;
-        lblWrap.append(label);
         inputWrap.append(input);
-        wrap.append(lblWrap, inputWrap);
-        return [wrap, input, label];
+        wrap.append(inputWrap);
+        if (title) {
+            const lblWrap = d.createElement("div");
+            lblWrap.classList.add("flex--item");
+            const label = d.createElement("label");
+            label.classList.add("d-block", "s-label");
+            label.htmlFor = id;
+            label.textContent = title;
+            lblWrap.append(label);
+            wrap.prepend(lblWrap);
+            return [wrap, input, label];
+        }
+        return [wrap, input];
     };
     const makeStacksIcon = (name, pathConfig, namespace = "http://www.w3.org/2000/svg") => {
         const svg = d.createElementNS(namespace, "svg");
@@ -262,26 +266,30 @@
         form.classList.add("s-modal--body", "d-flex", "flex__allcells6", "fw-wrap", "gs16");
         form.addEventListener("change", ({ target }) => {
             const { id, value } = target;
-            const option = configs.find(({ site }) => site === id);
+            const [siteId, configProp] = id.split("-");
+            const option = configs.find(({ site }) => site === siteId);
             option
-                ? Object.assign(option, { imageURL: value })
+                ? Object.assign(option, { [configProp]: value })
                 : configs.push(new NotFoundConfig({
-                    site: id,
-                    imageURL: value,
+                    site: siteId,
+                    [configProp]: value,
                     url: l.hostname,
                 }));
             Store.save("overrides", configs);
         });
-        const inputClasses = ["flex--item"];
-        const inputs = configs.map(({ imageURL, site, label, notFoundURL }) => {
+        const inputs = configs.map(({ imageURL, site, label, notFoundURL, header }) => {
             const title = label || site;
-            const [wrap, _input, lbl] = makeStacksTextInput(site, title, {
-                value: imageURL,
-                classes: inputClasses,
-            });
+            const wrapper = d.createElement("div");
+            wrapper.classList.add("flex--item");
+            const [imageInputWrap, _input, lbl] = makeStacksTextInput(`${site}-imageURL`, { value: imageURL, title });
             lbl.append(d.createTextNode(" "), makeLinkIcon(notFoundURL, `${title} 404 page`));
             lbl.classList.add("mb8");
-            return wrap;
+            const [headerInputWrap] = makeStacksTextInput(`${site}-header`, {
+                placeholder: "custom header",
+                value: header || "",
+            });
+            wrapper.append(imageInputWrap, headerInputWrap);
+            return wrapper;
         });
         form.append(...inputs);
         const close = d.createElement("button");
@@ -303,7 +311,7 @@
         wrap.append(doc);
         return wrap;
     };
-    const insert404Image = (d, { imageURL, site }) => {
+    const insert404Image = (d, { imageURL = "", site }) => {
         const image = d.createElement("img");
         image.src = imageURL;
         image.alt = "Page not found";
@@ -330,6 +338,15 @@
             flexWrap.classList.replace("ai-start", "ai-center");
         });
         d.body.append(image);
+    };
+    const modify404Headline = (d, { header }) => {
+        const contentModal = d.getElementById("content");
+        if (!contentModal)
+            return console.debug("missing content modal");
+        const headline = contentModal.querySelector("h1");
+        if (!header || !headline)
+            return;
+        headline.textContent = header;
     };
     const addConfigOptions = (configs) => {
         const itemId = "bring-back-404";
@@ -493,9 +510,13 @@
         addConfigOptions(pageNotFounds);
         const { hostname } = l;
         const currentSite = hostname.split(".").slice(0, -1).join(".");
-        const config = pageNotFounds.find(({ site }) => site === currentSite);
-        if (!config)
-            return console.debug(`not on supported site: ${currentSite}`);
+        const config = pageNotFounds.find(({ site }) => site === currentSite) ||
+            new NotFoundConfig({
+                site: currentSite,
+                header: "Arrrggghhh!",
+                imageURL: "https://i.stack.imgur.com/ata1R.jpg",
+            });
         insert404Image(d, config);
+        modify404Headline(d, config);
     });
 })(typeof unsafeWindow !== "undefined" ? unsafeWindow : window, window, document, location);
