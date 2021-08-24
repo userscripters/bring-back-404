@@ -2,7 +2,8 @@ type NotFoundOptions = {
     label?: string;
     site: string;
     url?: string;
-    imageURL: string;
+    header?: string;
+    imageURL?: string;
 };
 
 type StacksTextInputOptions = {
@@ -392,14 +393,19 @@ type AsyncStorage = RemoveIndex<
         form.addEventListener("change", ({ target }) => {
             const { id, value } = target as HTMLInputElement;
 
-            const option = configs.find(({ site }) => site === id);
+            const [siteId, configProp] = id.split("-") as [
+                site: string,
+                prop: keyof NotFoundOptions
+            ];
+
+            const option = configs.find(({ site }) => site === siteId);
 
             option
-                ? Object.assign(option, { imageURL: value })
+                ? Object.assign(option, { [configProp]: value })
                 : configs.push(
                     new NotFoundConfig({
-                        site: id,
-                        imageURL: value,
+                        site: siteId,
+                        [configProp]: value,
                         url: l.hostname,
                     })
                 );
@@ -407,22 +413,37 @@ type AsyncStorage = RemoveIndex<
             Store.save("overrides", configs);
         });
 
-        const inputClasses = ["flex--item"];
-        const inputs = configs.map(({ imageURL, site, label, notFoundURL }) => {
-            const title = label || site;
+        const inputs = configs.map(
+            ({ imageURL, site, label, notFoundURL, header }) => {
+                const title = label || site;
 
-            const [wrap, _input, lbl] = makeStacksTextInput(site, title, {
-                value: imageURL,
-                classes: inputClasses,
-            });
+                const wrapper = d.createElement("div");
+                wrapper.classList.add("flex--item");
 
-            lbl.append(
-                d.createTextNode(" "),
-                makeLinkIcon(notFoundURL, `${title} 404 page`)
-            );
-            lbl.classList.add("mb8");
-            return wrap;
-        });
+                const [imageInputWrap, _input, lbl] = makeStacksTextInput(
+                    `${site}-imageURL`,
+                    { value: imageURL, title }
+                );
+
+                lbl.append(
+                    d.createTextNode(" "),
+                    makeLinkIcon(notFoundURL, `${title} 404 page`)
+                );
+                lbl.classList.add("mb8");
+
+                const [headerInputWrap] = makeStacksTextInput(
+                    `${site}-header`,
+                    {
+                        placeholder: "custom header",
+                        value: header || "",
+                    }
+                );
+
+                wrapper.append(imageInputWrap, headerInputWrap);
+
+                return wrapper;
+            }
+        );
 
         form.append(...inputs);
 
@@ -458,7 +479,7 @@ type AsyncStorage = RemoveIndex<
      */
     const insert404Image = (
         d: Document,
-        { imageURL, site }: NotFoundConfig
+        { imageURL = "", site }: NotFoundConfig
     ) => {
         const image = d.createElement("img");
         image.src = imageURL;
@@ -498,6 +519,19 @@ type AsyncStorage = RemoveIndex<
         });
 
         d.body.append(image);
+    };
+
+    /**
+     * @summary changes 404 headline to a custom text
+     */
+    const modify404Headline = (d: Document, { header }: NotFoundConfig) => {
+        const contentModal = d.getElementById("content");
+        if (!contentModal) return console.debug("missing content modal");
+
+        const headline = contentModal.querySelector("h1");
+        if (!header || !headline) return;
+
+        headline.textContent = header;
     };
 
     /**
@@ -687,6 +721,7 @@ type AsyncStorage = RemoveIndex<
             return console.debug(`not on supported site: ${currentSite}`);
 
         insert404Image(d, config);
+        modify404Headline(d, config);
     });
 })(
     typeof unsafeWindow !== "undefined" ? unsafeWindow : window,
