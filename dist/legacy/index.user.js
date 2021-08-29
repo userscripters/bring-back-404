@@ -12,7 +12,7 @@
 // @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
 // @match           https://*.stackoverflow.com/*
-// @name            bring-back-404
+// @name            Bring Back 404
 // @namespace       userscripters
 // @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git
@@ -73,10 +73,14 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 (function (uw, w, d, l) {
     var storageMap = {
@@ -256,7 +260,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var _b;
         var _c = _a === void 0 ? {} : _a, _d = _c.classes, classes = _d === void 0 ? [] : _d, _e = _c.placeholder, placeholder = _e === void 0 ? "" : _e, _f = _c.title, title = _f === void 0 ? "" : _f, _g = _c.value, value = _g === void 0 ? "" : _g;
         var wrap = d.createElement("div");
-        (_b = wrap.classList).add.apply(_b, __spreadArray(["d-flex", "gs4", "gsy", "fd-column"], __read(classes)));
+        (_b = wrap.classList).add.apply(_b, __spreadArray(["d-flex", "gs4", "gsy", "fd-column"], __read(classes), false));
         var inputWrap = d.createElement("div");
         inputWrap.classList.add("d-flex", "ps-relative");
         var input = d.createElement("input");
@@ -437,7 +441,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             wrapper.append(imageInputWrap, headerInputWrap);
             return wrapper;
         });
-        form.append.apply(form, __spreadArray([], __read(inputs)));
+        form.append.apply(form, __spreadArray([], __read(inputs), false));
         var close = d.createElement("button");
         close.classList.add("s-modal--close", "s-btn", "s-btn__muted");
         close.type = "button";
@@ -531,7 +535,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         });
         return NotFoundConfig;
     }());
-    var pageNotFounds = [
+    var defaultOptions = [
         {
             label: "Stack Overflow",
             site: "stackoverflow",
@@ -652,7 +656,23 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             site: "dba.stackexchange",
             imageURL: "https://i.stack.imgur.com/ly6am.png",
         },
-    ].map(function (option) { return new NotFoundConfig(option); });
+        {
+            label: "Movies & TV",
+            site: "movies.stackexchange",
+            imageURL: "https://i.stack.imgur.com/wCrM9.png",
+        },
+        {
+            label: "Software Recommendations",
+            site: "softwarerecs.stackexchange",
+            imageURL: "https://i.stack.imgur.com/BqikQ.png",
+        },
+        {
+            label: "Academia",
+            site: "academia.stackexchange",
+            imageURL: "https://i.stack.imgur.com/l10yz.png",
+        },
+    ];
+    var pageNotFounds = defaultOptions.map(function (option) { return new NotFoundConfig(option); });
     w.addEventListener("load", function () { return __awaiter(void 0, void 0, void 0, function () {
         var overrides, status, hostname, currentSite, config;
         return __generator(this, function (_a) {

@@ -12,7 +12,7 @@
 // @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
 // @match           https://*.stackoverflow.com/*
-// @name            bring-back-404
+// @name            Bring Back 404
 // @namespace       userscripters
 // @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git

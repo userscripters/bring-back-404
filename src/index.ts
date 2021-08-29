@@ -577,7 +577,7 @@ type AsyncStorage = RemoveIndex<
         }
     }
 
-    const pageNotFounds: NotFoundConfig[] = [
+    const defaultOptions: NotFoundOptions[] = [
         {
             label: "Stack Overflow",
             site: "stackoverflow",
@@ -698,7 +698,26 @@ type AsyncStorage = RemoveIndex<
             site: "dba.stackexchange",
             imageURL: "https://i.stack.imgur.com/ly6am.png",
         },
-    ].map((option) => new NotFoundConfig(option));
+        {
+            label: "Movies & TV",
+            site: "movies.stackexchange",
+            imageURL: "https://i.stack.imgur.com/wCrM9.png",
+        },
+        {
+            label: "Software Recommendations",
+            site: "softwarerecs.stackexchange",
+            imageURL: "https://i.stack.imgur.com/BqikQ.png",
+        },
+        {
+            label: "Academia",
+            site: "academia.stackexchange",
+            imageURL: "https://i.stack.imgur.com/l10yz.png",
+        },
+    ];
+
+    const pageNotFounds: NotFoundConfig[] = defaultOptions.map(
+        (option) => new NotFoundConfig(option)
+    );
 
     w.addEventListener("load", async () => {
         const overrides = await Store.load<NotFoundOptions[]>("overrides", []);

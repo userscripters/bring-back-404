@@ -12,7 +12,7 @@
 // @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
 // @match           https://*.stackoverflow.com/*
-// @name            bring-back-404
+// @name            Bring Back 404
 // @namespace       userscripters
 // @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git
@@ -376,7 +376,7 @@
             return url || `https://${site}.com/404`;
         }
     }
-    const pageNotFounds = [
+    const defaultOptions = [
         {
             label: "Stack Overflow",
             site: "stackoverflow",
@@ -497,7 +497,23 @@
             site: "dba.stackexchange",
             imageURL: "https://i.stack.imgur.com/ly6am.png",
         },
-    ].map((option) => new NotFoundConfig(option));
+        {
+            label: "Movies & TV",
+            site: "movies.stackexchange",
+            imageURL: "https://i.stack.imgur.com/wCrM9.png",
+        },
+        {
+            label: "Software Recommendations",
+            site: "softwarerecs.stackexchange",
+            imageURL: "https://i.stack.imgur.com/BqikQ.png",
+        },
+        {
+            label: "Academia",
+            site: "academia.stackexchange",
+            imageURL: "https://i.stack.imgur.com/l10yz.png",
+        },
+    ];
+    const pageNotFounds = defaultOptions.map((option) => new NotFoundConfig(option));
     w.addEventListener("load", async () => {
         const overrides = await Store.load("overrides", []);
         overrides.forEach((option) => {

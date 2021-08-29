@@ -24,3 +24,6 @@
 | Database Administrators   | [<img src="https://i.stack.imgur.com/ly6am.png" width="80" alt="404" />](https://i.stack.imgur.com/ly6am.png)                           |
 | Graphic Design            | [<img src="https://i.stack.imgur.com/FwQQL.png" width="80" alt="404" />](https://i.stack.imgur.com/FwQQL.png)                           |
 | Android Enthusiasts       | [<img src="https://i.stack.imgur.com/kgFiY.png" width="80" alt="404" />](https://i.stack.imgur.com/kgFiY.png)                           |
+| Movies & TV |  [<img src="https://i.stack.imgur.com/wCrM9.png" width="80" alt="404" />](https://i.stack.imgur.com/wCrM9.png) |
+| Software Recommendations |  [<img src="https://i.stack.imgur.com/BqikQ.png" width="80" alt="404" />](https://i.stack.imgur.com/BqikQ.png) |
+| Academia |  [<img src="https://i.stack.imgur.com/l10yz.png" width="80" alt="404" />](https://i.stack.imgur.com/l10yz.png) |
