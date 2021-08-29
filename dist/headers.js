@@ -17,5 +17,5 @@
 // @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
-// @version         1.1.2
+// @version         1.2.0
 // ==/UserScript==
