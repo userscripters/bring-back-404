@@ -42,7 +42,7 @@
     "@types/chai-as-promised": "^7.1.4",
     "@types/greasemonkey": "^4.0.2",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^17.0.4",
+    "@types/node": "^17.0.5",
     "@types/tampermonkey": "^4.0.5",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",
