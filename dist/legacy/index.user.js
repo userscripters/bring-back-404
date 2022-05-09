@@ -6,12 +6,26 @@
 // @grant           GM_listValues
 // @grant           GM_setValue
 // @homepage        https://github.com/userscripters/bring-back-404#readme
-// @match           https://*.askubuntu.com/*
-// @match           https://*.mathoverflow.net/*
-// @match           https://*.serverfault.com/*
-// @match           https://*.stackapps.com/*
 // @match           https://*.stackexchange.com/*
-// @match           https://*.stackoverflow.com/*
+// @match           https://askubuntu.com/*
+// @match           https://es.meta.stackoverflow.com/*
+// @match           https://es.stackoverflow.com/*
+// @match           https://ja.meta.stackoverflow.com/*
+// @match           https://ja.stackoverflow.com/*
+// @match           https://mathoverflow.net/*
+// @match           https://meta.askubuntu.com/*
+// @match           https://meta.mathoverflow.net/*
+// @match           https://meta.serverfault.com/*
+// @match           https://meta.stackoverflow.com/*
+// @match           https://meta.superuser.com/*
+// @match           https://pt.meta.stackoverflow.com/*
+// @match           https://pt.stackoverflow.com/*
+// @match           https://ru.meta.stackoverflow.com/*
+// @match           https://ru.stackoverflow.com/*
+// @match           https://serverfault.com/*
+// @match           https://stackapps.com/*
+// @match           https://stackoverflow.com/*
+// @match           https://superuser.com/*
 // @name            Bring Back 404
 // @namespace       userscripters
 // @run-at          document-start
@@ -349,8 +363,8 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             if ([moveX, moveY].map(Math.abs).some(function (c) { return c > superSonic; }))
                 return;
             var style = modal.style;
-            style.left = parseInt(left) + moveX + "px";
-            style.top = parseInt(top) + moveY + "px";
+            style.left = "".concat(parseInt(left) + moveX, "px");
+            style.top = "".concat(parseInt(top) + moveY, "px");
             previousX = clientX;
             previousY = clientY;
         };
@@ -398,7 +412,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         var doc = d.createElement("div");
         doc.classList.add("s-modal--dialog", "ps-relative", "hmx6");
         doc.setAttribute("role", "document");
-        doc.id = id + "-document";
+        doc.id = "".concat(id, "-document");
         doc.draggable = true;
         makeDraggable(doc.id);
         var title = d.createElement("h1");
@@ -431,10 +445,10 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             var title = label || site;
             var wrapper = d.createElement("div");
             wrapper.classList.add("flex--item");
-            var _b = __read(makeStacksTextInput(site + "-imageURL", { value: imageURL, title: title }), 3), imageInputWrap = _b[0], _input = _b[1], lbl = _b[2];
-            lbl.append(d.createTextNode(" "), makeLinkIcon(notFoundURL, title + " 404 page"));
+            var _b = __read(makeStacksTextInput("".concat(site, "-imageURL"), { value: imageURL, title: title }), 3), imageInputWrap = _b[0], _input = _b[1], lbl = _b[2];
+            lbl.append(d.createTextNode(" "), makeLinkIcon(notFoundURL, "".concat(title, " 404 page")));
             lbl.classList.add("mb8");
-            var _c = __read(makeStacksTextInput(site + "-header", {
+            var _c = __read(makeStacksTextInput("".concat(site, "-header"), {
                 placeholder: "custom header",
                 value: header || "",
             }), 1), headerInputWrap = _c[0];
@@ -470,7 +484,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         image.width = 250;
         image.style.display = "none";
         image.addEventListener("error", function () {
-            return console.debug("failed to load 404 image on " + site);
+            return console.debug("failed to load 404 image on ".concat(site));
         });
         image.addEventListener("load", function () {
             var contentModal = d.getElementById("content");
@@ -528,7 +542,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         Object.defineProperty(NotFoundConfig.prototype, "notFoundURL", {
             get: function () {
                 var _a = this, site = _a.site, url = _a.url;
-                return url || "https://" + site + ".com/404";
+                return url || "https://".concat(site, ".com/404");
             },
             enumerable: false,
             configurable: true

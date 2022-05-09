@@ -3,11 +3,11 @@
 
 | Author       | Oleg Valter<br>[oleg.a.valter@gmail.com](mailto:oleg.a.valter@gmail.com) |
 | :----------- | :----------------------- |
-| Contributors |               |
-| Name         | @userscripters/bring-back-404    |
-| Description  | Brings back 404 pages to Stack Exchange network           |
-| License      | [GPL-3.0-or-later](https://spdx.org/licenses/GPL-3.0-or-later)                 |
-| Version      | 1.2.0               |
+| Name | @userscripters/bring-back-404 |
+| Description | Brings back 404 pages to Stack Exchange network |
+| License | [GPL-3.0-or-later](https://spdx.org/licenses/GPL-3.0-or-later) |
+| Version | 1.2.0 |
+
 
 # Support
 

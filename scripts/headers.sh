@@ -3,9 +3,9 @@
 dist="dist"
 output=$dist"/headers.js"
 
-generate tampermonkey \
+generate-headers tampermonkey \
     -o $output \
-    -m $(cat .matches) \
+    -m all meta \
     -g get set delete list \
     --pretty
 
