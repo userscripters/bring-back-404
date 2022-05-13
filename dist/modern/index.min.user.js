@@ -32,7 +32,7 @@
 // @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
-// @version         1.2.0
+// @version         2.0.0
 // ==/UserScript==
 
 "use strict";((g,e,m,p)=>{const u=(e,{classes:t=[],placeholder:a="",title:s="",value:i=""}={})=>{const n=m.createElement("div"),c=(n.classList.add("d-flex","gs4","gsy","fd-column",...t),m.createElement("div")),r=(c.classList.add("d-flex","ps-relative"),m.createElement("input"));if(r.classList.add("s-input"),r.id=e,r.type="text",r.placeholder=a,r.value=i,c.append(r),n.append(c),s){const l=m.createElement("div"),o=(l.classList.add("flex--item"),m.createElement("label"));return o.classList.add("d-block","s-label"),o.htmlFor=e,o.textContent=s,l.append(o),n.prepend(l),[n,r,o]}return[n,r]},h=(e,t)=>{var a="http://www.w3.org/2000/svg";const[s,i]=((e,t,a)=>{const s=m.createElementNS(a,"svg"),i=(s.classList.add("svg-icon",e),s.setAttribute("width","18"),s.setAttribute("height","18"),s.setAttribute("viewBox","0 0 18 18"),s.setAttribute("aria-hidden","true"),m.createElementNS(a,"path"));return i.setAttribute("d",t),s.append(i),[s,i]})("iconGlobe",`M9 1C4.64 1 1 4.64 1 9c0 4.36 3.64 8 8 8 4.36 0 8-3.64 8-8
