@@ -18,122 +18,9 @@ interface Window {
     [x: string]: unknown;
 }
 
-type RemoveIndex<T> = {
-    [P in keyof T as string extends P
-        ? never
-        : number extends P
-        ? never
-        : P]: T[P];
-};
-
-type AsyncStorage = RemoveIndex<
-    {
-        [P in keyof Storage]: Storage[P] extends Function
-            ? (
-                  ...args: Parameters<Storage[P]>
-              ) => Promise<ReturnType<Storage[P]>>
-            : Promise<Storage[P]>;
-    }
->;
+declare const Store: typeof import("@userscripters/storage");
 
 ((uw, w, d, l) => {
-    const storageMap: {
-        GM_setValue: Storage;
-        GM: AsyncStorage;
-    } = {
-        GM_setValue: {
-            get length() {
-                return GM_listValues().length;
-            },
-            clear() {
-                const keys = GM_listValues();
-                return keys.forEach((key) => GM_deleteValue(key));
-            },
-            key(index) {
-                return GM_listValues()[index];
-            },
-            getItem(key) {
-                return GM_getValue(key);
-            },
-            setItem(key, val) {
-                return GM_setValue(key, val);
-            },
-            removeItem(key) {
-                return GM_deleteValue(key);
-            },
-        },
-        GM: {
-            get length() {
-                return GM.listValues().then((v) => v.length);
-            },
-            async clear() {
-                const keys = await GM.listValues();
-                return keys.forEach((key) => GM.deleteValue(key));
-            },
-            async key(index) {
-                return (await GM.listValues())[index];
-            },
-            async getItem(key) {
-                const item = await GM.getValue(key);
-                return item === void 0 ? null : item?.toString();
-            },
-            setItem(key, val) {
-                return GM.setValue(key, val);
-            },
-            removeItem(key) {
-                return GM.deleteValue(key);
-            },
-        },
-    };
-
-    //TODO: switch to configurable preference
-    const [, storage] =
-        Object.entries(storageMap).find(
-            ([key]) => typeof w[key] !== "undefined"
-        ) || [];
-
-    class Store {
-        static storage: Storage | AsyncStorage = storage || localStorage;
-
-        static prefix = "bring-back-404";
-
-        static clear(): void {
-            const { storage, prefix } = this;
-            storage.removeItem(prefix);
-        }
-
-        private static async open() {
-            const { storage, prefix } = this;
-            const val = await storage.getItem(prefix);
-            return val ? JSON.parse(val) : {};
-        }
-
-        static async load<T>(key: string, def?: T): Promise<T> {
-            const val = (await Store.open())[key];
-            return val !== void 0 ? val : def;
-        }
-
-        static async save<T>(key: string, val: T) {
-            const { storage, prefix } = this;
-            const old = await Store.open();
-            old[key] = val;
-            return storage.setItem(prefix, JSON.stringify(old));
-        }
-
-        static async toggle(key: string) {
-            return Store.save(key, !(await Store.load(key)));
-        }
-
-        static async remove(key: string) {
-            const { prefix } = this;
-
-            const old = await this.load<Record<string, any>>(prefix, {});
-            delete old[key];
-
-            return Store.save(key, old);
-        }
-    }
-
     /**
      * @summary creates config item element
      */
@@ -351,7 +238,7 @@ type AsyncStorage = RemoveIndex<
     /**
      * @summary creates config modal element
      */
-    const makeConfigView = (id: string, configs: NotFoundConfig[]) => {
+    const makeConfigView = (store: InstanceType<typeof Store.default>, id: string, configs: NotFoundConfig[]) => {
         const ariaLabelId = "modal-title";
         const ariaDescrId = "modal-description";
 
@@ -403,14 +290,14 @@ type AsyncStorage = RemoveIndex<
             option
                 ? Object.assign(option, { [configProp]: value })
                 : configs.push(
-                      new NotFoundConfig({
-                          site: siteId,
-                          [configProp]: value,
-                          url: l.hostname,
-                      })
-                  );
+                    new NotFoundConfig({
+                        site: siteId,
+                        [configProp]: value,
+                        url: l.hostname,
+                    })
+                );
 
-            Store.save("overrides", configs);
+            store.save("overrides", configs);
         });
 
         const inputs = configs.map(
@@ -539,7 +426,10 @@ type AsyncStorage = RemoveIndex<
     /**
      * @summary adds a UI element for opening userscript config
      */
-    const addConfigOptions = (configs: NotFoundConfig[]) => {
+    const addConfigOptions = (
+        store: InstanceType<typeof Store.default>,
+        configs: NotFoundConfig[]
+    ) => {
         const itemId = "bring-back-404";
 
         const menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
@@ -554,7 +444,7 @@ type AsyncStorage = RemoveIndex<
 
         item.addEventListener(
             "click",
-            () => menu.append(makeConfigView(uiId, configs)),
+            () => menu.append(makeConfigView(store, uiId, configs)),
             { once: true }
         );
 
@@ -720,7 +610,10 @@ type AsyncStorage = RemoveIndex<
     );
 
     w.addEventListener("load", async () => {
-        const overrides = await Store.load<NotFoundOptions[]>("overrides", []);
+        const storage = Store.locateStorage();
+        const store = new Store.default("bring-back-404", storage);
+
+        const overrides = await store.load<NotFoundOptions[]>("overrides", []);
         overrides.forEach((option) => {
             const defaults = pageNotFounds.find(
                 ({ site }) => site === option.site
@@ -731,7 +624,7 @@ type AsyncStorage = RemoveIndex<
         });
 
         addStyles(d);
-        addConfigOptions(pageNotFounds);
+        addConfigOptions(store, pageNotFounds);
 
         const { status } = await fetch(l.href);
         if (status !== 404) return;

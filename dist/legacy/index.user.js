@@ -28,6 +28,7 @@
 // @match           https://superuser.com/*
 // @name            Bring Back 404
 // @namespace       userscripters
+// @require         https://github.com/userscripters/storage/raw/master/dist/browser.js
 // @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
@@ -97,165 +98,6 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 (function (uw, w, d, l) {
-    var storageMap = {
-        GM_setValue: {
-            get length() {
-                return GM_listValues().length;
-            },
-            clear: function () {
-                var keys = GM_listValues();
-                return keys.forEach(function (key) { return GM_deleteValue(key); });
-            },
-            key: function (index) {
-                return GM_listValues()[index];
-            },
-            getItem: function (key) {
-                return GM_getValue(key);
-            },
-            setItem: function (key, val) {
-                return GM_setValue(key, val);
-            },
-            removeItem: function (key) {
-                return GM_deleteValue(key);
-            },
-        },
-        GM: {
-            get length() {
-                return GM.listValues().then(function (v) { return v.length; });
-            },
-            clear: function () {
-                return __awaiter(this, void 0, void 0, function () {
-                    var keys;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4, GM.listValues()];
-                            case 1:
-                                keys = _a.sent();
-                                return [2, keys.forEach(function (key) { return GM.deleteValue(key); })];
-                        }
-                    });
-                });
-            },
-            key: function (index) {
-                return __awaiter(this, void 0, void 0, function () {
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4, GM.listValues()];
-                            case 1: return [2, (_a.sent())[index]];
-                        }
-                    });
-                });
-            },
-            getItem: function (key) {
-                return __awaiter(this, void 0, void 0, function () {
-                    var item;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4, GM.getValue(key)];
-                            case 1:
-                                item = _a.sent();
-                                return [2, item === void 0 ? null : item === null || item === void 0 ? void 0 : item.toString()];
-                        }
-                    });
-                });
-            },
-            setItem: function (key, val) {
-                return GM.setValue(key, val);
-            },
-            removeItem: function (key) {
-                return GM.deleteValue(key);
-            },
-        },
-    };
-    var _a = __read(Object.entries(storageMap).find(function (_a) {
-        var _b = __read(_a, 1), key = _b[0];
-        return typeof w[key] !== "undefined";
-    }) || [], 2), storage = _a[1];
-    var Store = (function () {
-        function Store() {
-        }
-        Store.clear = function () {
-            var _a = this, storage = _a.storage, prefix = _a.prefix;
-            storage.removeItem(prefix);
-        };
-        Store.open = function () {
-            return __awaiter(this, void 0, void 0, function () {
-                var _a, storage, prefix, val;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            _a = this, storage = _a.storage, prefix = _a.prefix;
-                            return [4, storage.getItem(prefix)];
-                        case 1:
-                            val = _b.sent();
-                            return [2, val ? JSON.parse(val) : {}];
-                    }
-                });
-            });
-        };
-        Store.load = function (key, def) {
-            return __awaiter(this, void 0, void 0, function () {
-                var val;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4, Store.open()];
-                        case 1:
-                            val = (_a.sent())[key];
-                            return [2, val !== void 0 ? val : def];
-                    }
-                });
-            });
-        };
-        Store.save = function (key, val) {
-            return __awaiter(this, void 0, void 0, function () {
-                var _a, storage, prefix, old;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            _a = this, storage = _a.storage, prefix = _a.prefix;
-                            return [4, Store.open()];
-                        case 1:
-                            old = _b.sent();
-                            old[key] = val;
-                            return [2, storage.setItem(prefix, JSON.stringify(old))];
-                    }
-                });
-            });
-        };
-        Store.toggle = function (key) {
-            return __awaiter(this, void 0, void 0, function () {
-                var _a, _b, _c;
-                return __generator(this, function (_d) {
-                    switch (_d.label) {
-                        case 0:
-                            _b = (_a = Store).save;
-                            _c = [key];
-                            return [4, Store.load(key)];
-                        case 1: return [2, _b.apply(_a, _c.concat([!(_d.sent())]))];
-                    }
-                });
-            });
-        };
-        Store.remove = function (key) {
-            return __awaiter(this, void 0, void 0, function () {
-                var prefix, old;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            prefix = this.prefix;
-                            return [4, this.load(prefix, {})];
-                        case 1:
-                            old = _a.sent();
-                            delete old[key];
-                            return [2, Store.save(key, old)];
-                    }
-                });
-            });
-        };
-        Store.storage = storage || localStorage;
-        Store.prefix = "bring-back-404";
-        return Store;
-    }());
     var makeConfigItem = function (id) {
         var item = d.createElement("li");
         item.classList.add("-item");
@@ -395,7 +237,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             return handleCoordChange(e);
         });
     };
-    var makeConfigView = function (id, configs) {
+    var makeConfigView = function (store, id, configs) {
         var ariaLabelId = "modal-title";
         var ariaDescrId = "modal-description";
         var wrap = d.createElement("aside");
@@ -438,7 +280,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                     _c[configProp] = value,
                     _c.url = l.hostname,
                     _c)));
-            Store.save("overrides", configs);
+            store.save("overrides", configs);
         });
         var inputs = configs.map(function (_a) {
             var imageURL = _a.imageURL, site = _a.site, label = _a.label, notFoundURL = _a.notFoundURL, header = _a.header;
@@ -516,7 +358,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             return;
         headline.textContent = header;
     };
-    var addConfigOptions = function (configs) {
+    var addConfigOptions = function (store, configs) {
         var itemId = "bring-back-404";
         var menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
         if (!menu)
@@ -526,7 +368,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             return;
         menu.append(item);
         var uiId = "bring-back-404-config";
-        item.addEventListener("click", function () { return menu.append(makeConfigView(uiId, configs)); }, { once: true });
+        item.addEventListener("click", function () { return menu.append(makeConfigView(store, uiId, configs)); }, { once: true });
         item.addEventListener("click", function (event) {
             var _a;
             event.preventDefault();
@@ -688,10 +530,13 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     ];
     var pageNotFounds = defaultOptions.map(function (option) { return new NotFoundConfig(option); });
     w.addEventListener("load", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var overrides, status, hostname, currentSite, config;
+        var storage, store, overrides, status, hostname, currentSite, config;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4, Store.load("overrides", [])];
+                case 0:
+                    storage = Store.locateStorage();
+                    store = new Store.default("bring-back-404", storage);
+                    return [4, store.load("overrides", [])];
                 case 1:
                     overrides = _a.sent();
                     overrides.forEach(function (option) {
@@ -704,7 +549,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                         Object.assign(defaults, option);
                     });
                     addStyles(d);
-                    addConfigOptions(pageNotFounds);
+                    addConfigOptions(store, pageNotFounds);
                     return [4, fetch(l.href)];
                 case 2:
                     status = (_a.sent()).status;

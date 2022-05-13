@@ -28,6 +28,7 @@
 // @match           https://superuser.com/*
 // @name            Bring Back 404
 // @namespace       userscripters
+// @require         https://github.com/userscripters/storage/raw/master/dist/browser.js
 // @run-at          document-start
 // @source          git+https://github.com/userscripters/bring-back-404.git
 // @supportURL      https://github.com/userscripters/bring-back-404/issues
@@ -36,84 +37,6 @@
 
 "use strict";
 ((uw, w, d, l) => {
-    const storageMap = {
-        GM_setValue: {
-            get length() {
-                return GM_listValues().length;
-            },
-            clear() {
-                const keys = GM_listValues();
-                return keys.forEach((key) => GM_deleteValue(key));
-            },
-            key(index) {
-                return GM_listValues()[index];
-            },
-            getItem(key) {
-                return GM_getValue(key);
-            },
-            setItem(key, val) {
-                return GM_setValue(key, val);
-            },
-            removeItem(key) {
-                return GM_deleteValue(key);
-            },
-        },
-        GM: {
-            get length() {
-                return GM.listValues().then((v) => v.length);
-            },
-            async clear() {
-                const keys = await GM.listValues();
-                return keys.forEach((key) => GM.deleteValue(key));
-            },
-            async key(index) {
-                return (await GM.listValues())[index];
-            },
-            async getItem(key) {
-                const item = await GM.getValue(key);
-                return item === void 0 ? null : item === null || item === void 0 ? void 0 : item.toString();
-            },
-            setItem(key, val) {
-                return GM.setValue(key, val);
-            },
-            removeItem(key) {
-                return GM.deleteValue(key);
-            },
-        },
-    };
-    const [, storage] = Object.entries(storageMap).find(([key]) => typeof w[key] !== "undefined") || [];
-    class Store {
-        static clear() {
-            const { storage, prefix } = this;
-            storage.removeItem(prefix);
-        }
-        static async open() {
-            const { storage, prefix } = this;
-            const val = await storage.getItem(prefix);
-            return val ? JSON.parse(val) : {};
-        }
-        static async load(key, def) {
-            const val = (await Store.open())[key];
-            return val !== void 0 ? val : def;
-        }
-        static async save(key, val) {
-            const { storage, prefix } = this;
-            const old = await Store.open();
-            old[key] = val;
-            return storage.setItem(prefix, JSON.stringify(old));
-        }
-        static async toggle(key) {
-            return Store.save(key, !(await Store.load(key)));
-        }
-        static async remove(key) {
-            const { prefix } = this;
-            const old = await this.load(prefix, {});
-            delete old[key];
-            return Store.save(key, old);
-        }
-    }
-    Store.storage = storage || localStorage;
-    Store.prefix = "bring-back-404";
     const makeConfigItem = (id) => {
         const item = d.createElement("li");
         item.classList.add("-item");
@@ -252,7 +175,7 @@
             return handleCoordChange(e);
         });
     };
-    const makeConfigView = (id, configs) => {
+    const makeConfigView = (store, id, configs) => {
         const ariaLabelId = "modal-title";
         const ariaDescrId = "modal-description";
         const wrap = d.createElement("aside");
@@ -289,7 +212,7 @@
                     [configProp]: value,
                     url: l.hostname,
                 }));
-            Store.save("overrides", configs);
+            store.save("overrides", configs);
         });
         const inputs = configs.map(({ imageURL, site, label, notFoundURL, header }) => {
             const title = label || site;
@@ -362,7 +285,7 @@
             return;
         headline.textContent = header;
     };
-    const addConfigOptions = (configs) => {
+    const addConfigOptions = (store, configs) => {
         const itemId = "bring-back-404";
         const menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
         if (!menu)
@@ -372,7 +295,7 @@
             return;
         menu.append(item);
         const uiId = "bring-back-404-config";
-        item.addEventListener("click", () => menu.append(makeConfigView(uiId, configs)), { once: true });
+        item.addEventListener("click", () => menu.append(makeConfigView(store, uiId, configs)), { once: true });
         item.addEventListener("click", (event) => {
             var _a;
             event.preventDefault();
@@ -529,7 +452,9 @@
     ];
     const pageNotFounds = defaultOptions.map((option) => new NotFoundConfig(option));
     w.addEventListener("load", async () => {
-        const overrides = await Store.load("overrides", []);
+        const storage = Store.locateStorage();
+        const store = new Store.default("bring-back-404", storage);
+        const overrides = await store.load("overrides", []);
         overrides.forEach((option) => {
             const defaults = pageNotFounds.find(({ site }) => site === option.site);
             if (!defaults)
@@ -537,7 +462,7 @@
             Object.assign(defaults, option);
         });
         addStyles(d);
-        addConfigOptions(pageNotFounds);
+        addConfigOptions(store, pageNotFounds);
         const { status } = await fetch(l.href);
         if (status !== 404)
             return;
