@@ -23,17 +23,17 @@ declare const Store: typeof import("@userscripters/storage");
 ((uw, w, d, l) => {
     /**
      * @summary creates config item element
+    * @param id config item id
      */
     const makeConfigItem = (id: string) => {
         const item = d.createElement("li");
-        item.classList.add("-item");
         item.id = id;
 
         const { dataset } = item;
         dataset.action = "s-modal#toggle";
 
         const link = d.createElement("a");
-        link.classList.add("-link");
+        link.classList.add("s-topbar--item");
 
         const text = d.createElement("strong");
         text.textContent = "404";
@@ -272,7 +272,7 @@ declare const Store: typeof import("@userscripters/storage");
         form.classList.add(
             "s-modal--body",
             "d-flex",
-            "flex__allcells6",
+            "flex__allitems6",
             "fw-wrap",
             "gs16"
         );
@@ -432,7 +432,7 @@ declare const Store: typeof import("@userscripters/storage");
     ) => {
         const itemId = "bring-back-404";
 
-        const menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
+        const menu = d.querySelector("ol.s-topbar--content");
         if (!menu) return console.debug("failed to find main menu");
 
         const item = d.getElementById(itemId) || makeConfigItem(itemId);

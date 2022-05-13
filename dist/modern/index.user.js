@@ -39,12 +39,11 @@
 ((uw, w, d, l) => {
     const makeConfigItem = (id) => {
         const item = d.createElement("li");
-        item.classList.add("-item");
         item.id = id;
         const { dataset } = item;
         dataset.action = "s-modal#toggle";
         const link = d.createElement("a");
-        link.classList.add("-link");
+        link.classList.add("s-topbar--item");
         const text = d.createElement("strong");
         text.textContent = "404";
         link.append(text);
@@ -200,7 +199,7 @@
         title.id = ariaLabelId;
         title.textContent = "Custom 404 Options";
         const form = d.createElement("form");
-        form.classList.add("s-modal--body", "d-flex", "flex__allcells6", "fw-wrap", "gs16");
+        form.classList.add("s-modal--body", "d-flex", "flex__allitems6", "fw-wrap", "gs16");
         form.addEventListener("change", ({ target }) => {
             const { id, value } = target;
             const [siteId, configProp] = id.split("-");
@@ -287,7 +286,7 @@
     };
     const addConfigOptions = (store, configs) => {
         const itemId = "bring-back-404";
-        const menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
+        const menu = d.querySelector("ol.s-topbar--content");
         if (!menu)
             return console.debug("failed to find main menu");
         const item = d.getElementById(itemId) || makeConfigItem(itemId);

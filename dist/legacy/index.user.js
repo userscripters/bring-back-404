@@ -100,12 +100,11 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 (function (uw, w, d, l) {
     var makeConfigItem = function (id) {
         var item = d.createElement("li");
-        item.classList.add("-item");
         item.id = id;
         var dataset = item.dataset;
         dataset.action = "s-modal#toggle";
         var link = d.createElement("a");
-        link.classList.add("-link");
+        link.classList.add("s-topbar--item");
         var text = d.createElement("strong");
         text.textContent = "404";
         link.append(text);
@@ -262,7 +261,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         title.id = ariaLabelId;
         title.textContent = "Custom 404 Options";
         var form = d.createElement("form");
-        form.classList.add("s-modal--body", "d-flex", "flex__allcells6", "fw-wrap", "gs16");
+        form.classList.add("s-modal--body", "d-flex", "flex__allitems6", "fw-wrap", "gs16");
         form.addEventListener("change", function (_a) {
             var _b, _c;
             var target = _a.target;
@@ -360,7 +359,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     };
     var addConfigOptions = function (store, configs) {
         var itemId = "bring-back-404";
-        var menu = d.querySelector("ol.user-logged-in, ol.user-logged-out");
+        var menu = d.querySelector("ol.s-topbar--content");
         if (!menu)
             return console.debug("failed to find main menu");
         var item = d.getElementById(itemId) || makeConfigItem(itemId);
